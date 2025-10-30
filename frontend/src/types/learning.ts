@@ -1,4 +1,8 @@
-import type { ViewerMetadata, ViewerStructure } from '../components/dicom/DicomViewer'
+import type {
+  ViewerMetadata,
+  ViewerStructure,
+  ViewerVolume,
+} from '../components/dicom/DicomViewer'
 
 export type CaseDocument = {
   id: string
@@ -10,6 +14,7 @@ export type CaseStudy = {
   id: string
   label: string
   focus: string
+  volume?: ViewerVolume
   documents: CaseDocument[]
   structures: ViewerStructure[]
   metadata: ViewerMetadata

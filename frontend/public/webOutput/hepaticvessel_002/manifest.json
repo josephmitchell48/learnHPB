@@ -1,0 +1,35 @@
+{
+  "case_id": "hepaticvessel_002",
+  "volume": {
+    "source": "hepaticvessel_002.nii.gz",
+    "output": "hepaticvessel_002_volume.vti"
+  },
+  "segmentations": [
+    {
+      "source": "hepaticvessel_002_liver.nii.gz",
+      "output": "hepaticvessel_002_liver.vtp",
+      "labels": [
+        1
+      ],
+      "generated": true
+    },
+    {
+      "source": "hepaticvessel_002_task008.nii.gz",
+      "output": "hepaticvessel_002_task008.vtp",
+      "labels": [
+        1,
+        2
+      ],
+      "generated": true
+    },
+    {
+      "source": "hepaticvessel_002_vsnet.nii.gz",
+      "output": "hepaticvessel_002_vsnet.vtp",
+      "labels": [
+        1,
+        2
+      ],
+      "generated": true
+    }
+  ]
+}

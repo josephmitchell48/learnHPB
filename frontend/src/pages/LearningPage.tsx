@@ -13,6 +13,29 @@ type LearnerState = {
   specialty?: Specialty
 }
 
+const dataRoot = `${import.meta.env.BASE_URL}webOutput`
+
+const assetCatalog = {
+  hepatic002: {
+    volume: `${dataRoot}/hepaticvessel_002/hepaticvessel_002_volume.vti`,
+    liver: `${dataRoot}/hepaticvessel_002/segmentations/hepaticvessel_002_liver.vtp`,
+    vessels: `${dataRoot}/hepaticvessel_002/segmentations/hepaticvessel_002_vsnet.vtp`,
+    lesion: `${dataRoot}/hepaticvessel_002/segmentations/hepaticvessel_002_task008.vtp`,
+  },
+  hepatic008: {
+    volume: `${dataRoot}/hepaticvessel_008/hepaticvessel_008_volume.vti`,
+    liver: `${dataRoot}/hepaticvessel_008/segmentations/hepaticvessel_008_liver.vtp`,
+    vessels: `${dataRoot}/hepaticvessel_008/segmentations/hepaticvessel_008_vsnet.vtp`,
+    lesion: `${dataRoot}/hepaticvessel_008/segmentations/hepaticvessel_008_task008.vtp`,
+  },
+  hepatic010: {
+    volume: `${dataRoot}/hepaticvessel_010/hepaticvessel_010_volume.vti`,
+    liver: `${dataRoot}/hepaticvessel_010/segmentations/hepaticvessel_010_liver.vtp`,
+    vessels: `${dataRoot}/hepaticvessel_010/segmentations/hepaticvessel_010_vsnet.vtp`,
+    lesion: `${dataRoot}/hepaticvessel_010/segmentations/hepaticvessel_010_task008.vtp`,
+  },
+}
+
 const LearningPage = () => {
   const navigate = useNavigate()
   const { specialtyId } = useParams<{ specialtyId: string }>()
@@ -33,6 +56,10 @@ const LearningPage = () => {
         id: 'case-1',
         label: `${topic} Case 1`,
         focus: 'Acute presentation',
+        volume: {
+          url: assetCatalog.hepatic002.volume,
+          format: 'vti',
+        },
         metadata: {
           voxels: '512 × 512 × 320',
           spacing: '0.75 mm × 0.75 mm × 1.0 mm',
@@ -43,19 +70,19 @@ const LearningPage = () => {
             id: 'structure-liver',
             name: `${topic} Parenchyma`,
             color: '#f8b195',
-            placeholder: 'organ',
+            meshUrl: assetCatalog.hepatic002.liver,
           },
           {
             id: 'structure-artery',
-            name: 'Arterial Tree',
+            name: 'Hepatic Vessels',
             color: '#6c5b7b',
-            placeholder: 'vessel',
+            meshUrl: assetCatalog.hepatic002.vessels,
           },
           {
             id: 'structure-lesion',
             name: 'Index Lesion',
             color: '#355c7d',
-            placeholder: 'lesion',
+            meshUrl: assetCatalog.hepatic002.lesion,
           },
         ],
         documents: [
@@ -80,6 +107,10 @@ const LearningPage = () => {
         id: 'case-2',
         label: `${topic} Case 2`,
         focus: 'Chronic management',
+        volume: {
+          url: assetCatalog.hepatic008.volume,
+          format: 'vti',
+        },
         metadata: {
           voxels: '448 × 448 × 280',
           spacing: '0.9 mm × 0.9 mm × 1.5 mm',
@@ -90,13 +121,19 @@ const LearningPage = () => {
             id: 'structure-parenchyma',
             name: `${topic} Anatomy`,
             color: '#f67280',
-            placeholder: 'organ',
+            meshUrl: assetCatalog.hepatic008.liver,
           },
           {
             id: 'structure-portal',
             name: 'Portal System',
             color: '#c06c84',
-            placeholder: 'vessel',
+            meshUrl: assetCatalog.hepatic008.vessels,
+          },
+          {
+            id: 'structure-lesion-2',
+            name: 'Treatment Zone',
+            color: '#355c7d',
+            meshUrl: assetCatalog.hepatic008.lesion,
           },
         ],
         documents: [
@@ -116,6 +153,10 @@ const LearningPage = () => {
         id: 'case-3',
         label: `${topic} Case 3`,
         focus: 'Post-procedural follow-up',
+        volume: {
+          url: assetCatalog.hepatic010.volume,
+          format: 'vti',
+        },
         metadata: {
           voxels: '512 × 512 × 220',
           spacing: '0.8 mm × 0.8 mm × 1.2 mm',
@@ -126,19 +167,19 @@ const LearningPage = () => {
             id: 'structure-organ',
             name: `${topic} Volume`,
             color: '#f8b195',
-            placeholder: 'organ',
+            meshUrl: assetCatalog.hepatic010.liver,
           },
           {
             id: 'structure-vein',
             name: 'Venous Drainage',
             color: '#355c7d',
-            placeholder: 'vessel',
+            meshUrl: assetCatalog.hepatic010.vessels,
           },
           {
             id: 'structure-tumor',
             name: 'Residual Lesion',
             color: '#6c5b7b',
-            placeholder: 'lesion',
+            meshUrl: assetCatalog.hepatic010.lesion,
           },
         ],
         documents: [
@@ -235,6 +276,7 @@ const LearningPage = () => {
           </p>
           <DicomViewer
             caseLabel={selectedCase?.label ?? 'Case Study'}
+            volume={selectedCase?.volume}
             structures={selectedCase?.structures ?? []}
             metadata={selectedCase?.metadata}
             onExportStructure={(structureId) => {
