@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
+import LearningPage from './pages/LearningPage'
 import RoleSelectionPage from './pages/RoleSelectionPage'
 import SpecialtySelectionPage from './pages/SpecialtySelectionPage'
 import SsoPage from './pages/SsoPage'
@@ -15,6 +16,7 @@ const App = () => {
           <Route path="/" element={<SsoPage />} />
           <Route path="/role" element={<RoleSelectionPage />} />
           <Route path="/specialties" element={<SpecialtySelectionPage />} />
+          <Route path="/learning/:specialtyId" element={<LearningPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
