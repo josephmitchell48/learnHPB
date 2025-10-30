@@ -21,14 +21,14 @@ const CaseSidebar = ({
     <aside className="learning-sidebar">
       <div className="sidebar-specialty">
         <button className="sidebar-back" onClick={onBack}>
-          ← Specialties
+          ← HPB focus areas
         </button>
         <h2>{activeSpecialtyLabel ?? 'Learning Pathway'}</h2>
         <p>{roleLabel ? `${roleLabel} View` : 'Personalized Journey'}</p>
       </div>
 
       <nav className="case-list">
-        <h3>Patient List</h3>
+        <h3>HPB Patient List</h3>
         <ul>
           {caseStudies.map((caseStudy) => (
             <li key={caseStudy.id}>

@@ -52,7 +52,7 @@ const LearningPage = () => {
   const imagingEnabled = !isLightweightMode
 
   const caseStudies = useMemo<CaseStudy[]>(() => {
-    const topic = activeSpecialty?.title ?? 'Clinical'
+    const topic = activeSpecialty?.title ?? 'HPB'
 
     if (!imagingEnabled) {
       return [
