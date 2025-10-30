@@ -2,33 +2,16 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import type { Specialty } from '../data/specialties'
 import { specialties } from '../data/specialties'
+import DicomViewer from '../components/dicom/DicomViewer'
+import CaseSidebar from '../components/learning/CaseSidebar'
+import DocumentViewer from '../components/learning/DocumentViewer'
+import type { CaseStudy } from '../types/learning'
 import './LearningPage.css'
 
 type LearnerState = {
   role?: string
   specialty?: Specialty
 }
-
-type CaseDocument = {
-  id: string
-  title: string
-  summary: string
-}
-
-type CaseStudy = {
-  id: string
-  label: string
-  focus: string
-  documents: CaseDocument[]
-}
-
-const placeholderText = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent porttitor congue erat,
-non commodo magna porta quis. Sed porta volutpat elit, nec iaculis mauris blandit nec. Morbi vitae
-venenatis felis. Suspendisse potenti. Sed malesuada lorem id aliquam lacinia. Pellentesque sit amet
-felis a nisl feugiat tempus. Donec pulvinar volutpat nunc, sed gravida massa accumsan et. Fusce at
-libero eu augue aliquet hendrerit. Integer euismod, ligula non imperdiet semper, neque erat iaculis
-metus, ac aliquet risus nibh vitae augue. Nulla facilisi. Quisque dignissim consequat nisi, vitae
-tempor ante vulputate ac.`
 
 const LearningPage = () => {
   const navigate = useNavigate()
@@ -50,6 +33,31 @@ const LearningPage = () => {
         id: 'case-1',
         label: `${topic} Case 1`,
         focus: 'Acute presentation',
+        metadata: {
+          voxels: '512 × 512 × 320',
+          spacing: '0.75 mm × 0.75 mm × 1.0 mm',
+          notes: 'Initial arterial phase scan capturing primary vascular supply.',
+        },
+        structures: [
+          {
+            id: 'structure-liver',
+            name: `${topic} Parenchyma`,
+            color: '#f8b195',
+            placeholder: 'organ',
+          },
+          {
+            id: 'structure-artery',
+            name: 'Arterial Tree',
+            color: '#6c5b7b',
+            placeholder: 'vessel',
+          },
+          {
+            id: 'structure-lesion',
+            name: 'Index Lesion',
+            color: '#355c7d',
+            placeholder: 'lesion',
+          },
+        ],
         documents: [
           {
             id: 'doc-referral',
@@ -72,6 +80,25 @@ const LearningPage = () => {
         id: 'case-2',
         label: `${topic} Case 2`,
         focus: 'Chronic management',
+        metadata: {
+          voxels: '448 × 448 × 280',
+          spacing: '0.9 mm × 0.9 mm × 1.5 mm',
+          notes: 'Portal venous phase with post-intervention follow-up.',
+        },
+        structures: [
+          {
+            id: 'structure-parenchyma',
+            name: `${topic} Anatomy`,
+            color: '#f67280',
+            placeholder: 'organ',
+          },
+          {
+            id: 'structure-portal',
+            name: 'Portal System',
+            color: '#c06c84',
+            placeholder: 'vessel',
+          },
+        ],
         documents: [
           {
             id: 'doc-history',
@@ -89,6 +116,31 @@ const LearningPage = () => {
         id: 'case-3',
         label: `${topic} Case 3`,
         focus: 'Post-procedural follow-up',
+        metadata: {
+          voxels: '512 × 512 × 220',
+          spacing: '0.8 mm × 0.8 mm × 1.2 mm',
+          notes: 'Delayed phase to evaluate post-operative perfusion.',
+        },
+        structures: [
+          {
+            id: 'structure-organ',
+            name: `${topic} Volume`,
+            color: '#f8b195',
+            placeholder: 'organ',
+          },
+          {
+            id: 'structure-vein',
+            name: 'Venous Drainage',
+            color: '#355c7d',
+            placeholder: 'vessel',
+          },
+          {
+            id: 'structure-tumor',
+            name: 'Residual Lesion',
+            color: '#6c5b7b',
+            placeholder: 'lesion',
+          },
+        ],
         documents: [
           {
             id: 'doc-summary',
@@ -110,21 +162,21 @@ const LearningPage = () => {
     caseStudies.find((caseStudy) => caseStudy.id === selectedCaseId) ??
     caseStudies[0]
 
-  const [selectedDocumentId, setSelectedDocumentId] = useState(
-    selectedCase?.documents[0]?.id,
+  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
+    selectedCase?.documents[0]?.id ?? null,
   )
-  const selectedDocument =
-    selectedCase?.documents.find((doc) => doc.id === selectedDocumentId) ??
-    selectedCase?.documents[0]
 
   useEffect(() => {
-    if (selectedCase && selectedDocumentId) {
-      const stillExists = selectedCase.documents.some(
-        (doc) => doc.id === selectedDocumentId,
-      )
-      if (!stillExists) {
-        setSelectedDocumentId(selectedCase.documents[0]?.id)
-      }
+    if (!selectedCase) {
+      return
+    }
+
+    const stillExists = selectedCase.documents.some(
+      (doc) => doc.id === selectedDocumentId,
+    )
+
+    if (!stillExists) {
+      setSelectedDocumentId(selectedCase.documents[0]?.id ?? null)
     }
   }, [selectedCase, selectedDocumentId])
 
@@ -142,48 +194,18 @@ const LearningPage = () => {
 
   return (
     <div className="learning-layout">
-      <aside className="learning-sidebar">
-        <div className="sidebar-specialty">
-          <button className="sidebar-back" onClick={goBackToSpecialties}>
-            ← Specialties
-          </button>
-          <h2>{activeSpecialty?.title ?? 'Learning Pathway'}</h2>
-          <p>{roleLabel ? `${roleLabel} View` : 'Personalized Journey'}</p>
-        </div>
-
-        <nav className="case-list">
-          <h3>Patient List</h3>
-          <ul>
-            {caseStudies.map((caseStudy) => (
-              <li key={caseStudy.id}>
-                <button
-                  type="button"
-                  className={
-                    caseStudy.id === selectedCaseId
-                      ? 'case-item active'
-                      : 'case-item'
-                  }
-                  onClick={() => {
-                    setSelectedCaseId(caseStudy.id)
-                    setSelectedDocumentId(caseStudy.documents[0]?.id)
-                  }}
-                >
-                  {caseStudy.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="sidebar-footer">
-          <button type="button" className="sidebar-link">
-            ⚙ App settings
-          </button>
-          <button type="button" className="sidebar-link">
-            ⏻ Sign out
-          </button>
-        </div>
-      </aside>
+      <CaseSidebar
+        activeSpecialtyLabel={activeSpecialty?.title}
+        roleLabel={roleLabel}
+        caseStudies={caseStudies}
+        selectedCaseId={selectedCase?.id}
+        onSelectCase={(caseId) => {
+          setSelectedCaseId(caseId)
+          const nextCase = caseStudies.find((caseStudy) => caseStudy.id === caseId)
+          setSelectedDocumentId(nextCase?.documents[0]?.id ?? null)
+        }}
+        onBack={goBackToSpecialties}
+      />
 
       <section className="learning-main">
         <header className="case-header">
@@ -200,47 +222,28 @@ const LearningPage = () => {
           </div>
         </header>
 
-        <div className="case-body">
-          <div className="document-list">
-            <h2>Document List</h2>
-            <ul>
-              {selectedCase?.documents.map((doc) => (
-                <li key={doc.id}>
-                  <button
-                    type="button"
-                    className={
-                      doc.id === selectedDocumentId
-                        ? 'document-item active'
-                        : 'document-item'
-                    }
-                    onClick={() => setSelectedDocumentId(doc.id)}
-                  >
-                    <strong>{doc.title}</strong>
-                    <span>{doc.summary}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </div>
+        <DocumentViewer
+          documents={selectedCase?.documents ?? []}
+          selectedDocumentId={selectedDocumentId}
+          onSelectDocument={(documentId) => setSelectedDocumentId(documentId)}
+        />
 
-          <div className="document-viewer">
-            <div className="viewer-toolbar">
-              <span className="viewer-title">
-                {selectedDocument?.title ?? 'Learning Document'}
-              </span>
-              <div className="viewer-actions">
-                <button type="button">⟲</button>
-                <button type="button">⤢</button>
-                <button type="button">⬇</button>
-              </div>
-            </div>
-            <div className="viewer-content">
-              <p>{placeholderText}</p>
-              <p>{placeholderText}</p>
-              <p>{placeholderText}</p>
-            </div>
-          </div>
-        </div>
+        <section className="dicom-section">
+          <h2>3D Exploration</h2>
+          <p className="dicom-section__subtitle">
+            Interact with vascular and organ structures to reinforce spatial understanding.
+          </p>
+          <DicomViewer
+            caseLabel={selectedCase?.label ?? 'Case Study'}
+            structures={selectedCase?.structures ?? []}
+            metadata={selectedCase?.metadata}
+            onExportStructure={(structureId) => {
+              console.log(
+                `Export requested for ${structureId} in case ${selectedCase?.id}`,
+              )
+            }}
+          />
+        </section>
       </section>
     </div>
   )
