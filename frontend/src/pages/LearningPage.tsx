@@ -6,6 +6,7 @@ import DicomViewer from '../components/dicom/DicomViewer'
 import CaseSidebar from '../components/learning/CaseSidebar'
 import DocumentViewer from '../components/learning/DocumentViewer'
 import type { CaseStudy } from '../types/learning'
+import { isLightweightMode } from '../config/environment'
 import './LearningPage.css'
 
 type LearnerState = {
@@ -48,9 +49,39 @@ const LearningPage = () => {
 
   const activeSpecialty =
     specialty ?? specialties.find((item) => item.id === specialtyId)
+  const imagingEnabled = !isLightweightMode
 
   const caseStudies = useMemo<CaseStudy[]>(() => {
     const topic = activeSpecialty?.title ?? 'Clinical'
+
+    if (!imagingEnabled) {
+      return [
+        {
+          id: 'case-lightweight',
+          label: `${topic} UX Focus`,
+          focus: 'Interface walkthrough',
+          documents: [
+            {
+              id: 'doc-ux-overview',
+              title: 'Scenario Overview',
+              summary:
+                'High-level patient context for UI review. Imaging loads are disabled to prioritise layout tweaks.',
+            },
+            {
+              id: 'doc-checklist',
+              title: 'Interaction Checklist',
+              summary: 'Track UI flows, ensure navigation clarity, and update notes inline.',
+            },
+          ],
+          structures: [],
+          metadata: {
+            notes:
+              'Lightweight mode active: imaging data omitted so you can iterate on UI without large asset downloads.',
+          },
+        },
+      ]
+    }
+
     return [
       {
         id: 'case-1',
@@ -196,7 +227,7 @@ const LearningPage = () => {
         ],
       },
     ]
-  }, [activeSpecialty])
+  }, [activeSpecialty, imagingEnabled])
 
   const [selectedCaseId, setSelectedCaseId] = useState(caseStudies[0]?.id)
   const selectedCase =
@@ -272,13 +303,16 @@ const LearningPage = () => {
         <section className="dicom-section">
           <h2>3D Exploration</h2>
           <p className="dicom-section__subtitle">
-            Interact with vascular and organ structures to reinforce spatial understanding.
+            {imagingEnabled
+              ? 'Interact with vascular and organ structures to reinforce spatial understanding.'
+              : 'Imaging is disabled in lightweight mode so you can focus on UI layout and flows.'}
           </p>
           <DicomViewer
             caseLabel={selectedCase?.label ?? 'Case Study'}
             volume={selectedCase?.volume}
             structures={selectedCase?.structures ?? []}
             metadata={selectedCase?.metadata}
+            imagingEnabled={imagingEnabled}
             onExportStructure={(structureId) => {
               console.log(
                 `Export requested for ${structureId} in case ${selectedCase?.id}`,

@@ -2,7 +2,7 @@ import type {
   ViewerMetadata,
   ViewerStructure,
   ViewerVolume,
-} from '../components/dicom/DicomViewer'
+} from '../components/dicom/types'
 
 export type CaseDocument = {
   id: string

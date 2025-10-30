@@ -1,38 +1,19 @@
-import { useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import clsx from 'clsx'
 import '@kitware/vtk.js/Rendering/Profiles/Geometry'
 import '@kitware/vtk.js/Rendering/Profiles/Volume'
-import vtkGenericRenderWindow from '@kitware/vtk.js/Rendering/Misc/GenericRenderWindow'
-import vtkVolume from '@kitware/vtk.js/Rendering/Core/Volume'
-import vtkVolumeMapper from '@kitware/vtk.js/Rendering/Core/VolumeMapper'
-import vtkPiecewiseFunction from '@kitware/vtk.js/Common/DataModel/PiecewiseFunction'
-import vtkColorTransferFunction from '@kitware/vtk.js/Rendering/Core/ColorTransferFunction'
-import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader'
-import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader'
-import vtkActor from '@kitware/vtk.js/Rendering/Core/Actor'
-import vtkMapper from '@kitware/vtk.js/Rendering/Core/Mapper'
-import vtkImageMapper from '@kitware/vtk.js/Rendering/Core/ImageMapper'
-import vtkImageSlice from '@kitware/vtk.js/Rendering/Core/ImageSlice'
-import vtkInteractorStyleImage from '@kitware/vtk.js/Interaction/Style/InteractorStyleImage'
+import VolumeRenderer3D, { type VolumeRenderer3DHandle } from './VolumeRenderer3D'
+import SliceViewer2D from './SliceViewer2D'
+import { useVtkVolume, type UseVtkVolumeResult } from './useVtkVolume'
+import type {
+  SliceAxis,
+  SliceRange,
+  SliceState,
+  ViewerMetadata,
+  ViewerStructure,
+  ViewerVolume,
+} from './types'
 import './DicomViewer.css'
-
-export type ViewerStructure = {
-  id: string
-  name: string
-  color: string
-  meshUrl?: string
-}
-
-export type ViewerMetadata = {
-  voxels?: string
-  spacing?: string
-  notes?: string
-}
-
-export type ViewerVolume = {
-  url: string
-  format?: 'vti'
-}
 
 type DicomViewerProps = {
   caseLabel: string
@@ -40,22 +21,7 @@ type DicomViewerProps = {
   structures: ViewerStructure[]
   metadata?: ViewerMetadata
   onExportStructure?: (structureId: string) => void
-}
-
-type SliceAxis = 'i' | 'j' | 'k'
-
-type VolumePipeline = {
-  generic: vtkGenericRenderWindow
-  renderer: ReturnType<vtkGenericRenderWindow['getRenderer']>
-  renderWindow: ReturnType<vtkGenericRenderWindow['getRenderWindow']>
-  mapper: vtkVolumeMapper
-  volume: vtkVolume
-}
-
-type SlicePipeline = {
-  generic: vtkGenericRenderWindow
-  mapper: vtkImageMapper
-  actor: vtkImageSlice
+  imagingEnabled?: boolean
 }
 
 const sliceOrder: SliceAxis[] = ['k', 'j', 'i']
@@ -64,11 +30,6 @@ const sliceLabels: Record<SliceAxis, string> = {
   j: 'Coronal',
   i: 'Sagittal',
 }
-const sliceModes: Record<SliceAxis, number> = {
-  i: vtkImageMapper.SlicingMode.I,
-  j: vtkImageMapper.SlicingMode.J,
-  k: vtkImageMapper.SlicingMode.K,
-}
 
 const defaultStructureVisibility = (structures: ViewerStructure[]) =>
   structures.reduce<Record<string, boolean>>(
@@ -76,39 +37,14 @@ const defaultStructureVisibility = (structures: ViewerStructure[]) =>
     {},
   )
 
-const toRgb = (hex: string): [number, number, number] => {
-  const value = hex.trim().replace('#', '')
-  if (value.length !== 6) {
-    return [1, 1, 1]
-  }
-  const bigint = parseInt(value, 16)
-  const r = ((bigint >> 16) & 255) / 255
-  const g = ((bigint >> 8) & 255) / 255
-  const b = (bigint & 255) / 255
-  return [r, g, b]
-}
+const toSliceRange = (extent: UseVtkVolumeResult['extent']): SliceRange => ({
+  i: [extent[0], extent[1]],
+  j: [extent[2], extent[3]],
+  k: [extent[4], extent[5]],
+})
 
-const createVolumeColorTransferFunction = () => {
-  const ctfun = vtkColorTransferFunction.newInstance()
-  ctfun.addRGBPoint(-3024, 0, 0, 0)
-  ctfun.addRGBPoint(-77, 0.55, 0.25, 0.15)
-  ctfun.addRGBPoint(94, 0.88, 0.6, 0.29)
-  ctfun.addRGBPoint(179, 1.0, 0.94, 0.95)
-  ctfun.addRGBPoint(260, 0.62, 0, 0)
-  ctfun.addRGBPoint(3071, 0.8, 0.8, 0.8)
-  return ctfun
-}
-
-const createVolumeOpacityFunction = () => {
-  const ofun = vtkPiecewiseFunction.newInstance()
-  ofun.addPoint(-3024, 0)
-  ofun.addPoint(-77, 0)
-  ofun.addPoint(94, 0.29)
-  ofun.addPoint(179, 0.55)
-  ofun.addPoint(260, 0.84)
-  ofun.addPoint(3071, 0.875)
-  return ofun
-}
+const getMidSlice = ([min, max]: [number, number]) =>
+  Math.floor((min + max) / 2)
 
 const DicomViewer = ({
   caseLabel,
@@ -116,384 +52,122 @@ const DicomViewer = ({
   structures,
   metadata,
   onExportStructure,
+  imagingEnabled = true,
 }: DicomViewerProps) => {
   const volumeContainerRef = useRef<HTMLDivElement | null>(null)
-  const sliceContainerRef = useRef<HTMLDivElement | null>(null)
+  const sliceCanvasRef = useRef<HTMLDivElement | null>(null)
+  const volumeRendererRef = useRef<VolumeRenderer3DHandle | null>(null)
 
-  const volumePipelineRef = useRef<VolumePipeline | null>(null)
-  const slicePipelineRef = useRef<SlicePipeline | null>(null)
-  const imageDataRef = useRef<any>(null)
-  const structureActorsRef = useRef<Record<string, vtkActor>>({})
+  const {
+    imageDataRef,
+    extent,
+    loadingMessage,
+    errorMessage,
+    hasVolume,
+    version,
+  } = useVtkVolume(imagingEnabled ? volume : undefined)
 
-  const [visibleStructures, setVisibleStructures] = useState<Record<string, boolean>>(
-    () => defaultStructureVisibility(structures),
+  const [visibleStructures, setVisibleStructures] = useState<Record<string, boolean>>(() =>
+    defaultStructureVisibility(structures),
   )
   const [viewMode, setViewMode] = useState<'3d' | '2d'>('3d')
   const [showVolume, setShowVolume] = useState(true)
   const [useLightTheme, setUseLightTheme] = useState(false)
-  const [loadingMessage, setLoadingMessage] = useState<string | null>(null)
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
-  const [sliceState, setSliceState] = useState<Record<SliceAxis, number>>({
-    i: 0,
-    j: 0,
-    k: 0,
-  })
-  const [sliceRange, setSliceRange] = useState<Record<SliceAxis, [number, number]>>({
+  const [activeSliceAxis, setActiveSliceAxis] = useState<SliceAxis>('k')
+  const [sliceRange, setSliceRange] = useState<SliceRange>({
     i: [0, 0],
     j: [0, 0],
     k: [0, 0],
   })
-  const [activeSliceAxis, setActiveSliceAxis] = useState<SliceAxis>('k')
+  const [sliceState, setSliceState] = useState<SliceState>({
+    i: 0,
+    j: 0,
+    k: 0,
+  })
 
-  const axisRefs: Record<SliceAxis, MutableRefObject<HTMLDivElement | null>> = {
-    i: sliceContainerRef,
-    j: sliceContainerRef,
-    k: sliceContainerRef,
-  }
-
-  // volume render pipeline
   useEffect(() => {
-    if (!volumeContainerRef.current) {
-      return
-    }
-
-    const generic = vtkGenericRenderWindow.newInstance({
-      background: useLightTheme ? [0.98, 0.97, 0.96] : [0.07, 0.09, 0.12],
+    setVisibleStructures((previous) => {
+      const baseline = defaultStructureVisibility(structures)
+      return structures.reduce<Record<string, boolean>>((acc, structure) => {
+        acc[structure.id] =
+          previous[structure.id] ?? baseline[structure.id] ?? true
+        return acc
+      }, {})
     })
-    generic.setContainer(volumeContainerRef.current)
-    generic.resize()
+  }, [structures])
 
-    const mapper = vtkVolumeMapper.newInstance()
-    mapper.setSampleDistance(0.7)
-
-    const volumeActor = vtkVolume.newInstance()
-    volumeActor.setMapper(mapper)
-    volumeActor.getProperty().setRGBTransferFunction(0, createVolumeColorTransferFunction())
-    volumeActor.getProperty().setScalarOpacity(0, createVolumeOpacityFunction())
-    volumeActor.getProperty().setInterpolationTypeToLinear()
-    volumeActor.getProperty().setShade(true)
-    volumeActor.getProperty().setUseGradientOpacity(0, true)
-    volumeActor.getProperty().setGradientOpacityMinimumValue(0, 2)
-    volumeActor.getProperty().setGradientOpacityMaximumValue(0, 20)
-
-    const renderer = generic.getRenderer()
-    renderer.addVolume(volumeActor)
-    renderer.getActiveCamera().setParallelProjection(false)
-
-    volumePipelineRef.current = {
-      generic,
-      renderer,
-      renderWindow: generic.getRenderWindow(),
-      mapper,
-      volume: volumeActor,
-    }
-
-    return () => {
-      structureActorsRef.current = {}
-      generic.delete()
-      volumePipelineRef.current = null
-    }
-  }, [useLightTheme])
-
-  // 2D slice pipeline
   useEffect(() => {
-    if (!sliceContainerRef.current) {
-      return
-    }
-
-    const generic = vtkGenericRenderWindow.newInstance({
-      background: [0.07, 0.09, 0.12],
+    const ranges = toSliceRange(extent)
+    setSliceRange(ranges)
+    setSliceState({
+      i: getMidSlice(ranges.i),
+      j: getMidSlice(ranges.j),
+      k: getMidSlice(ranges.k),
     })
-    generic.setContainer(sliceContainerRef.current)
-    generic.resize()
+  }, [extent, version])
 
-    const mapper = vtkImageMapper.newInstance()
-    mapper.setSliceAtFocalPoint(false)
-    mapper.setSlicingMode(sliceModes[activeSliceAxis])
-
-    const actor = vtkImageSlice.newInstance()
-    actor.setMapper(mapper)
-    actor.getProperty().setColorWindow(1500)
-    actor.getProperty().setColorLevel(-500)
-
-    const renderer = generic.getRenderer()
-    renderer.addViewProp(actor)
-    const interactor = generic.getInteractor()
-    interactor.setInteractorStyle(vtkInteractorStyleImage.newInstance())
-
-    slicePipelineRef.current = { generic, mapper, actor }
-
-    return () => {
-      generic.delete()
-      slicePipelineRef.current = null
+  const clampSliceIndex = (axis: SliceAxis, value: number) => {
+    const [min, max] = sliceRange[axis]
+    if (min === max) {
+      return min
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  // load volume data
-  const volumeLoader = useMemo(() => {
-    if (!volume?.url) {
-      return null
-    }
-    return { format: volume.format, url: volume.url }
-  }, [volume])
-
-  useEffect(() => {
-    let canceled = false
-
-    const cleanupStructures = () => {
-      const volumePipeline = volumePipelineRef.current
-      if (!volumePipeline) {
-        return
-      }
-      Object.values(structureActorsRef.current).forEach((actor) => {
-        volumePipeline.renderer.removeActor(actor)
-        actor.delete()
-      })
-      structureActorsRef.current = {}
-      volumePipeline.renderWindow.render()
-    }
-
-    const loadVolumeData = async () => {
-      if (!volumeLoader || !volumePipelineRef.current) {
-        imageDataRef.current = null
-        setLoadingMessage(null)
-        setErrorMessage(volume?.url ? 'Viewer not initialised' : null)
-        cleanupStructures()
-        return
-      }
-
-      try {
-        setLoadingMessage('Loading volume data…')
-        setErrorMessage(null)
-
-        const response = await fetch(volumeLoader.url, { cache: 'force-cache' })
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`)
-        }
-        const arrayBuffer = await response.arrayBuffer()
-        if (canceled) {
-          return
-        }
-
-        if (volumeLoader.format && volumeLoader.format !== 'vti') {
-          throw new Error(
-            `Unsupported volume format "${volumeLoader.format}". Please supply a .vti image.`,
-          )
-        }
-
-        const imageReader = vtkXMLImageDataReader.newInstance()
-        imageReader.parseAsArrayBuffer(arrayBuffer)
-        const imageData = imageReader.getOutputData(0)
-        imageDataRef.current = imageData
-
-        const volumePipeline = volumePipelineRef.current
-        if (!volumePipeline) {
-          return
-        }
-        volumePipeline.mapper.setInputData(imageData)
-        volumePipeline.renderWindow.render()
-        volumePipeline.renderer.resetCamera()
-        volumePipeline.renderWindow.render()
-
-        const extent = imageData.getExtent()
-        const ranges: Record<SliceAxis, [number, number]> = {
-          i: [extent[0], extent[1]],
-          j: [extent[2], extent[3]],
-          k: [extent[4], extent[5]],
-        }
-        const initialSlices: Record<SliceAxis, number> = {
-          i: Math.floor((ranges.i[0] + ranges.i[1]) / 2),
-          j: Math.floor((ranges.j[0] + ranges.j[1]) / 2),
-          k: Math.floor((ranges.k[0] + ranges.k[1]) / 2),
-        }
-        setSliceRange(ranges)
-        setSliceState(initialSlices)
-
-        // ensure slice pipeline shows data immediately
-        renderSlice(activeSliceAxis, initialSlices[activeSliceAxis], true, ranges)
-
-        cleanupStructures()
-        setLoadingMessage(null)
-      } catch (error) {
-        if (!canceled) {
-          console.error('Failed to load medical volume', error)
-          setErrorMessage(
-            'Unable to load the imaging volume. Please verify the file URL and format.',
-          )
-          setLoadingMessage(null)
-          imageDataRef.current = null
-          cleanupStructures()
-        }
-      }
-    }
-
-    loadVolumeData()
-
-    return () => {
-      canceled = true
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [volumeLoader?.url])
-
-  // update structure actors in 3d
-  useEffect(() => {
-    const pipeline = volumePipelineRef.current
-    if (!pipeline || !imageDataRef.current) {
-      return
-    }
-
-    const renderer = pipeline.renderer
-    const renderWindow = pipeline.renderWindow
-    const actors = structureActorsRef.current
-
-    const activeIds = new Set(structures.map((structure) => structure.id))
-
-    Object.entries(actors).forEach(([id, actor]) => {
-      if (!activeIds.has(id)) {
-        renderer.removeActor(actor)
-        actor.delete()
-        delete actors[id]
-      }
-    })
-
-    structures.forEach((structure) => {
-      if (!structure.meshUrl || actors[structure.id]) {
-        return
-      }
-      const reader = vtkXMLPolyDataReader.newInstance()
-      fetch(structure.meshUrl, { cache: 'force-cache' })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`)
-          }
-          return response.arrayBuffer()
-        })
-        .then((buffer) => {
-          reader.parseAsArrayBuffer(buffer)
-          const polyData = reader.getOutputData(0)
-          const mapper = vtkMapper.newInstance()
-          mapper.setInputData(polyData)
-          const actor = vtkActor.newInstance()
-          actor.setMapper(mapper)
-          actor.getProperty().setColor(...toRgb(structure.color))
-          actor.getProperty().setOpacity(0.92)
-          renderer.addActor(actor)
-          actor.setVisibility(visibleStructures[structure.id] ?? true)
-          actors[structure.id] = actor
-          renderWindow.render()
-        })
-        .catch((error) => {
-          console.error(`Failed to load structure ${structure.name}`, error)
-        })
-    })
-
-    renderWindow.render()
-  }, [structures, visibleStructures, useLightTheme])
-
-  // visibility toggle for volume
-  useEffect(() => {
-    const volumePipeline = volumePipelineRef.current
-    if (!volumePipeline) {
-      return
-    }
-    volumePipeline.volume.setVisibility(showVolume)
-    volumePipeline.renderWindow.render()
-  }, [showVolume])
-
-  // resize on view mode change
-  useEffect(() => {
-    if (viewMode === '3d') {
-      const volumePipeline = volumePipelineRef.current
-      if (volumePipeline) {
-        volumePipeline.generic.resize()
-        volumePipeline.renderWindow.render()
-      }
-    } else {
-      const slicePipeline = slicePipelineRef.current
-      if (slicePipeline) {
-        slicePipeline.generic.resize()
-        slicePipeline.generic.getRenderWindow().render()
-      }
-    }
-  }, [viewMode])
-
-  // ensure slice pipeline renders when axis changes or data available
-  useEffect(() => {
-    if (!imageDataRef.current) {
-      return
-    }
-    const slicePipeline = slicePipelineRef.current
-    if (!slicePipeline) {
-      return
-    }
-    slicePipeline.mapper.setInputData(imageDataRef.current)
-    slicePipeline.mapper.setSlicingMode(sliceModes[activeSliceAxis])
-    slicePipeline.mapper.setSlice(clampSliceIndex(activeSliceAxis, sliceState[activeSliceAxis]))
-    slicePipeline.generic.getRenderer().resetCamera()
-    slicePipeline.generic.getRenderWindow().render()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeSliceAxis])
-
-  const clampSliceIndex = (
-    axis: SliceAxis,
-    value: number,
-    rangeOverride?: Record<SliceAxis, [number, number]>,
-  ) => {
-    const [min, max] = (rangeOverride ?? sliceRange)[axis]
     return Math.min(Math.max(value, min), max)
   }
 
-  const renderSlice = (
-    axis: SliceAxis,
-    value: number,
-    resetCamera = false,
-    rangeOverride?: Record<SliceAxis, [number, number]>,
-  ) => {
-    const slicePipeline = slicePipelineRef.current
-    const data = imageDataRef.current
-    if (!slicePipeline || !data) {
-      return
-    }
-    const clamped = clampSliceIndex(axis, value, rangeOverride)
-    slicePipeline.mapper.setInputData(data)
-    slicePipeline.mapper.setSlicingMode(sliceModes[axis])
-    slicePipeline.mapper.setSlice(clamped)
-    if (resetCamera) {
-      slicePipeline.generic.getRenderer().resetCamera()
-    }
-    slicePipeline.generic.getRenderWindow().render()
+  const handleSliceChange = (axis: SliceAxis, rawValue: number) => {
+    const nextValue = clampSliceIndex(axis, rawValue)
+    setSliceState((prev) => ({
+      ...prev,
+      [axis]: nextValue,
+    }))
   }
 
   const toggleStructureVisibility = (structureId: string) => {
-    setVisibleStructures((prev) => {
-      const next = { ...prev, [structureId]: !prev[structureId] }
-      const actor = structureActorsRef.current[structureId]
-      if (actor) {
-        actor.setVisibility(next[structureId])
-        volumePipelineRef.current?.renderWindow.render()
-      }
-      return next
-    })
+    setVisibleStructures((prev) => ({
+      ...prev,
+      [structureId]: !prev[structureId],
+    }))
   }
 
-  const handleSliceChange = (axis: SliceAxis, value: number) => {
-    renderSlice(axis, value)
-    setSliceState((prev) => ({ ...prev, [axis]: value }))
-  }
+  const hasSliceExtent = useMemo(
+    () =>
+      sliceRange.i[0] !== sliceRange.i[1] ||
+      sliceRange.j[0] !== sliceRange.j[1] ||
+      sliceRange.k[0] !== sliceRange.k[1],
+    [sliceRange],
+  )
 
-  const hasVolume = !!imageDataRef.current
   const ambientLabel = useLightTheme ? 'Use Dark Theme' : 'Use Light Theme'
   const viewToggleLabel = viewMode === '3d' ? 'Switch to 2D View' : 'Switch to 3D View'
   const currentSliceRange = sliceRange[activeSliceAxis]
   const currentSliceValue = clampSliceIndex(activeSliceAxis, sliceState[activeSliceAxis])
   const sliceSliderDisabled =
-    !hasVolume || currentSliceRange[0] === currentSliceRange[1]
+    !imagingEnabled || !hasVolume || currentSliceRange[0] === currentSliceRange[1]
+
+  const imagingDisabledMessage = imagingEnabled
+    ? null
+    : 'Imaging disabled in lightweight mode.'
+
+  useEffect(() => {
+    if (!imagingEnabled) {
+      setViewMode('3d')
+    }
+  }, [imagingEnabled])
 
   const slicePanelMessage =
+    imagingDisabledMessage ??
     loadingMessage ??
     errorMessage ??
     (!volume?.url ? 'Provide a volume URL and format to visualise data.' : null)
+
+  const stagePanelMessage =
+    imagingDisabledMessage ??
+    (!volume?.url ? 'Provide a volume URL and format to visualise data.' : null) ??
+    (volume?.url && !hasVolume && !loadingMessage && !errorMessage
+      ? 'Preparing viewer…'
+      : null) ??
+    loadingMessage ??
+    errorMessage
 
   return (
     <div className="dicom-viewer">
@@ -526,20 +200,13 @@ const DicomViewer = ({
               hidden: viewMode === '2d',
             })}
           >
-            {!volume?.url && (
-              <div className="dicom-viewer__placeholder">
-                Provide a volume URL and format to visualise data.
-              </div>
-            )}
-            {volume?.url && !hasVolume && !loadingMessage && !errorMessage && (
-              <div className="dicom-viewer__placeholder">Preparing viewer…</div>
-            )}
-            {loadingMessage && (
-              <div className="dicom-viewer__placeholder">{loadingMessage}</div>
-            )}
-            {errorMessage && (
-              <div className="dicom-viewer__placeholder dicom-viewer__placeholder--error">
-                {errorMessage}
+            {stagePanelMessage && (
+              <div
+                className={clsx('dicom-viewer__placeholder', {
+                  'dicom-viewer__placeholder--error': Boolean(errorMessage),
+                })}
+              >
+                {stagePanelMessage}
               </div>
             )}
           </div>
@@ -574,11 +241,11 @@ const DicomViewer = ({
               </div>
             ) : (
               <>
-              <div className="dicom-viewer__slice-wrapper">
-                <div ref={axisRefs[activeSliceAxis]} className="dicom-viewer__slice-canvas" />
-              </div>
-              <div className="dicom-viewer__slice-sliderRow">
-                <span>{sliceLabels[activeSliceAxis]} slice</span>
+                <div className="dicom-viewer__slice-wrapper">
+                  <div ref={sliceCanvasRef} className="dicom-viewer__slice-canvas" />
+                </div>
+                <div className="dicom-viewer__slice-sliderRow">
+                  <span>{sliceLabels[activeSliceAxis]} slice</span>
                   <input
                     className="dicom-viewer__slice-slider"
                     type="range"
@@ -610,7 +277,8 @@ const DicomViewer = ({
             <button
               type="button"
               className="dicom-viewer__primary"
-              onClick={() => volumePipelineRef.current?.renderer.resetCamera()}
+              onClick={() => volumeRendererRef.current?.resetCamera()}
+              disabled={!imagingEnabled || !hasVolume}
             >
               Center View
             </button>
@@ -618,6 +286,7 @@ const DicomViewer = ({
               type="button"
               className="dicom-viewer__secondary"
               onClick={() => setViewMode((prev) => (prev === '3d' ? '2d' : '3d'))}
+              disabled={!imagingEnabled || !hasVolume || !hasSliceExtent}
             >
               {viewToggleLabel}
             </button>
@@ -625,7 +294,7 @@ const DicomViewer = ({
               type="button"
               className="dicom-viewer__secondary"
               onClick={() => setShowVolume((prev) => !prev)}
-              disabled={!hasVolume}
+              disabled={!imagingEnabled || !hasVolume}
             >
               {showVolume ? 'Hide Volume' : 'Show Volume'}
             </button>
@@ -656,13 +325,14 @@ const DicomViewer = ({
                     type="checkbox"
                     checked={visibleStructures[structure.id]}
                     onChange={() => toggleStructureVisibility(structure.id)}
+                    disabled={!imagingEnabled}
                   />
                   <span>{structure.name}</span>
                 </label>
                 <button
                   type="button"
                   onClick={() => onExportStructure?.(structure.id)}
-                  disabled={!structure.meshUrl}
+                  disabled={!imagingEnabled || !structure.meshUrl}
                 >
                   Export
                 </button>
@@ -671,6 +341,28 @@ const DicomViewer = ({
           </ul>
         </div>
       </section>
+
+      {imagingEnabled && viewMode === '3d' && (
+        <VolumeRenderer3D
+          ref={volumeRendererRef}
+          containerRef={volumeContainerRef}
+          imageDataRef={imageDataRef}
+          version={version}
+          structures={structures}
+          visibleStructures={visibleStructures}
+          showVolume={showVolume}
+          useLightTheme={useLightTheme}
+        />
+      )}
+      {imagingEnabled && viewMode === '2d' && (
+        <SliceViewer2D
+          containerRef={sliceCanvasRef}
+          imageDataRef={imageDataRef}
+          axis={activeSliceAxis}
+          slice={currentSliceValue}
+          version={version}
+        />
+      )}
     </div>
   )
 }
