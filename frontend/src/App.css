@@ -21,6 +21,14 @@
   box-shadow: 0 8px 24px rgba(108, 91, 123, 0.2);
 }
 
+body.theme-dark .app-header,
+body.theme-dark .app-footer {
+  background: linear-gradient(135deg, rgba(53, 92, 125, 0.95), rgba(192, 108, 132, 0.75));
+  border-color: rgba(246, 114, 128, 0.35);
+  color: #fef9f6;
+  box-shadow: 0 8px 32px rgba(15, 23, 42, 0.35);
+}
+
 .app-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.35);
   border-bottom: none;
@@ -66,16 +74,30 @@
   border: 1px solid var(--color-panel-border);
 }
 
+body.theme-dark .panel {
+  box-shadow:
+    0 24px 60px rgba(15, 23, 42, 0.45),
+    inset 0 1px 0 rgba(248, 177, 149, 0.15);
+}
+
 .panel-title {
   margin: 0;
   font-size: 2rem;
   color: var(--color-deep-blue);
 }
 
+body.theme-dark .panel-title {
+  color: #fef9f6;
+}
+
 .panel-subtitle {
   margin: 0;
   color: var(--color-muted);
   max-width: 40rem;
+}
+
+body.theme-dark .panel-subtitle {
+  color: rgba(248, 177, 149, 0.78);
 }
 
 .sso-buttons {
@@ -100,11 +122,21 @@
   box-shadow: 0 12px 26px rgba(192, 108, 132, 0.32);
 }
 
+body.theme-dark .primary-button {
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.55);
+}
+
 .primary-button.outline {
   background: rgba(255, 255, 255, 0.7);
   color: var(--color-deep-blue);
   border: 1px solid rgba(53, 92, 125, 0.35);
   box-shadow: none;
+}
+
+body.theme-dark .primary-button.outline {
+  background: rgba(15, 23, 42, 0.6);
+  color: #fef9f6;
+  border: 1px solid rgba(246, 114, 128, 0.35);
 }
 
 .primary-button:hover {
@@ -167,12 +199,12 @@
 
 .card-grid {
   display: grid;
-  gap: 1.25rem;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 }
 
 .card-grid.two-columns {
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .card-button {
@@ -186,6 +218,14 @@
   flex-direction: column;
   gap: 0.75rem;
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 12px 26px rgba(108, 91, 123, 0.12);
+}
+
+body.theme-dark .card-button {
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(246, 114, 128, 0.28);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.45);
+  color: #fef9f6;
 }
 
 .card-button h3 {
@@ -199,27 +239,66 @@
   color: var(--color-muted);
 }
 
+body.theme-dark .card-button p {
+  color: rgba(248, 177, 149, 0.78);
+}
+
 .card-button:hover {
   transform: translateY(-4px);
-  border-color: rgba(246, 114, 128, 0.5);
-  box-shadow: 0 18px 30px rgba(192, 108, 132, 0.18);
+  border-color: rgba(246, 114, 128, 0.45);
+  box-shadow: 0 18px 34px rgba(192, 108, 132, 0.24);
 }
 
-.card-button.active {
+.card-button.specialty-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.25rem;
+  padding: 0;
+  gap: 0;
+  box-shadow: 0 16px 32px rgba(108, 91, 123, 0.18);
+}
+
+body.theme-dark .card-button.specialty-card {
+  box-shadow: 0 20px 38px rgba(15, 23, 42, 0.5);
+}
+
+.card-button.specialty-card .card-accent {
+  height: 6px;
+  background: linear-gradient(135deg, var(--color-coral), var(--color-mauve));
+}
+
+.card-button.specialty-card .card-content {
+  padding: 1.6rem 1.6rem 1.2rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+body.theme-dark .card-button.specialty-card .card-content h3 {
+  color: #fef9f6;
+}
+
+body.theme-dark .card-button.specialty-card .card-content p {
+  color: rgba(248, 177, 149, 0.78);
+}
+
+.card-button.specialty-card .card-content h3 {
+  font-size: 1.4rem;
+}
+
+.card-button.specialty-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 24px 42px rgba(192, 108, 132, 0.28);
+}
+
+body.theme-dark .card-button.specialty-card:hover {
+  box-shadow: 0 26px 48px rgba(15, 23, 42, 0.55);
+}
+
+.card-button.specialty-card.active {
   border-color: rgba(246, 114, 128, 0.7);
-  background: linear-gradient(
-    135deg,
-    rgba(246, 114, 128, 0.3),
-    rgba(192, 108, 132, 0.22)
-  );
-  box-shadow: 0 18px 36px rgba(108, 91, 123, 0.25);
+  box-shadow: 0 28px 54px rgba(108, 91, 123, 0.28);
 }
 
-.hint {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--color-slate);
-}
 
 .selection-summary {
   padding: 1.5rem;

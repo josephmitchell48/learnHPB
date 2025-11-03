@@ -35,6 +35,24 @@ body {
   );
 }
 
+body.theme-dark {
+  --color-peach: #f8b195;
+  --color-coral: #f67280;
+  --color-mauve: #c06c84;
+  --color-slate: #b08cc4;
+  --color-deep-blue: #f5f7fb;
+  --color-panel: rgba(17, 24, 39, 0.88);
+  --color-panel-border: rgba(246, 114, 128, 0.35);
+  --color-muted: rgba(248, 177, 149, 0.72);
+  color: var(--color-deep-blue);
+  background: linear-gradient(
+    180deg,
+    rgba(53, 92, 125, 0.95) 0%,
+    rgba(36, 48, 77, 0.92) 45%,
+    rgba(20, 26, 43, 0.9) 100%
+  );
+}
+
 #root {
   min-height: 100vh;
 }

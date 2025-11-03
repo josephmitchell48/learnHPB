@@ -5,8 +5,10 @@ import { specialties } from '../data/specialties'
 import DicomViewer from '../components/dicom/DicomViewer'
 import CaseSidebar from '../components/learning/CaseSidebar'
 import DocumentViewer from '../components/learning/DocumentViewer'
+import SettingsModal from '../components/modals/SettingsModal'
 import type { CaseStudy } from '../types/learning'
 import { isLightweightMode } from '../config/environment'
+import { useTheme } from '../context/ThemeContext'
 import './LearningPage.css'
 
 type LearnerState = {
@@ -139,6 +141,10 @@ const LearningPage = () => {
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
     selectedCase?.documents[0]?.id ?? null,
   )
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const { preference: themePreference, setPreference: setThemePreference, theme } = useTheme()
+  const [shareProfile, setShareProfile] = useState(true)
+  const [showEmail, setShowEmail] = useState(true)
 
   useEffect(() => {
     if (!selectedCase) {
@@ -166,6 +172,10 @@ const LearningPage = () => {
     })
   }
 
+  const goToSignIn = () => {
+    navigate('/', { replace: true })
+  }
+
   return (
     <div className="learning-layout">
       <CaseSidebar
@@ -179,6 +189,8 @@ const LearningPage = () => {
           setSelectedDocumentId(nextCase?.documents[0]?.id ?? null)
         }}
         onBack={goBackToSpecialties}
+        onSignOut={goToSignIn}
+        onOpenSettings={() => setSettingsOpen(true)}
       />
 
       <section className="learning-main">
@@ -223,6 +235,65 @@ const LearningPage = () => {
           />
         </section>
       </section>
+
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        variant={theme === 'dark' ? 'dark' : 'light'}
+      >
+        <section className="settings-section">
+          <h3>Display</h3>
+          <p>Adjust how visuals appear across LearnHPB.</p>
+          <div className="settings-subgrid">
+            <div className="settings-control">
+              <label htmlFor="settings-theme">Theme preference</label>
+              <select
+                id="settings-theme"
+                value={themePreference}
+                onChange={(event) =>
+                  setThemePreference(event.target.value as 'system' | 'light' | 'dark')
+                }
+              >
+                <option value="system">Match system</option>
+                <option value="light">Light mode</option>
+                <option value="dark">Dark mode</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <section className="settings-section">
+          <h3>Profile</h3>
+          <p>Control what faculty and collaborators can see.</p>
+          <div className="settings-options">
+            <div className="settings-toggle">
+              <label htmlFor="settings-share-profile">
+                Share profile with faculty
+                <span>Allow educators to see your role, specialty, and progress.</span>
+              </label>
+              <input
+                id="settings-share-profile"
+                type="checkbox"
+                checked={shareProfile}
+                onChange={(event) => setShareProfile(event.target.checked)}
+              />
+            </div>
+            <div className="settings-toggle">
+              <label htmlFor="settings-show-email">
+                Display contact email
+                <span>Include your email in shared case notes for coordination.</span>
+              </label>
+              <input
+                id="settings-show-email"
+                type="checkbox"
+                checked={showEmail}
+                onChange={(event) => setShowEmail(event.target.checked)}
+              />
+            </div>
+          </div>
+        </section>
+
+      </SettingsModal>
     </div>
   )
 }

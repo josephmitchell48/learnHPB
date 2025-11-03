@@ -40,7 +40,7 @@ const RoleSelectionPage = () => {
           {roles.map((role) => (
             <button
               key={role.id}
-              className="card-button"
+              className="card-button role-card"
               type="button"
               onClick={() => goToSpecialties(role.id)}
             >

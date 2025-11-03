@@ -7,6 +7,8 @@ type CaseSidebarProps = {
   selectedCaseId?: string
   onSelectCase: (caseId: string) => void
   onBack?: () => void
+  onSignOut?: () => void
+  onOpenSettings?: () => void
 }
 
 const CaseSidebar = ({
@@ -16,6 +18,8 @@ const CaseSidebar = ({
   selectedCaseId,
   onSelectCase,
   onBack,
+  onSignOut,
+  onOpenSettings,
 }: CaseSidebarProps) => {
   return (
     <aside className="learning-sidebar">
@@ -47,10 +51,10 @@ const CaseSidebar = ({
       </nav>
 
       <div className="sidebar-footer">
-        <button type="button" className="sidebar-link">
+        <button type="button" className="sidebar-link" onClick={onOpenSettings}>
           ⚙ App settings
         </button>
-        <button type="button" className="sidebar-link">
+        <button type="button" className="sidebar-link" onClick={onSignOut}>
           ⏻ Sign out
         </button>
       </div>

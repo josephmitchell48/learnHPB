@@ -38,20 +38,24 @@ const SpecialtySelectionPage = () => {
             : 'Choose a hepatopancreatobiliary sub-specialty to preview tailored cases and imaging.'}
         </p>
 
-        <div className="card-grid">
-          {specialties.map((specialty) => (
-            <button
-              key={specialty.id}
-              className={`card-button ${
-                selectedSpecialty?.id === specialty.id ? 'active' : ''
-              }`}
-              type="button"
-              onClick={() => setSelectedSpecialty(specialty)}
-            >
-              <h3>{specialty.title}</h3>
-              <p>{specialty.description}</p>
-            </button>
-          ))}
+        <div className="card-grid two-columns">
+          {specialties.map((specialty) => {
+            const isActive = selectedSpecialty?.id === specialty.id
+            return (
+              <button
+                key={specialty.id}
+                className={`card-button specialty-card ${isActive ? 'active' : ''}`}
+                type="button"
+                onClick={() => setSelectedSpecialty(specialty)}
+              >
+                <div className="card-accent" aria-hidden />
+                <div className="card-content">
+                  <h3>{specialty.title}</h3>
+                  <p>{specialty.description}</p>
+                </div>
+              </button>
+            )
+          })}
         </div>
 
         {selectedSpecialty && (

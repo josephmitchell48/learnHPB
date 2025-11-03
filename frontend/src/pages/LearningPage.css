@@ -18,6 +18,13 @@
   box-shadow: 0 18px 40px rgba(108, 91, 123, 0.2);
 }
 
+body.theme-dark .learning-sidebar {
+  background: rgba(17, 24, 39, 0.82);
+  border: 1px solid rgba(246, 114, 128, 0.3);
+  box-shadow: 0 18px 46px rgba(15, 23, 42, 0.45);
+  color: #fef9f6;
+}
+
 .sidebar-specialty h2 {
   margin: 0.25rem 0 0.4rem;
   font-size: 1.4rem;
@@ -43,6 +50,15 @@
 
 .sidebar-back:hover {
   background: rgba(246, 114, 128, 0.45);
+}
+
+body.theme-dark .sidebar-back {
+  background: rgba(246, 114, 128, 0.6);
+  color: #fef9f6;
+}
+
+body.theme-dark .sidebar-back:hover {
+  background: rgba(246, 114, 128, 0.75);
 }
 
 .case-list h3 {
@@ -72,6 +88,11 @@
   transition: background 0.2s ease, transform 0.2s ease;
 }
 
+body.theme-dark .case-item {
+  background: rgba(15, 23, 42, 0.7);
+  color: #fef9f6;
+}
+
 .case-item:hover {
   background: rgba(246, 114, 128, 0.15);
   transform: translateX(4px);
@@ -87,12 +108,21 @@
   box-shadow: 0 14px 24px rgba(192, 108, 132, 0.25);
 }
 
+body.theme-dark .case-item.active {
+  background: linear-gradient(135deg, rgba(246, 114, 128, 0.9), rgba(53, 92, 125, 0.85));
+  box-shadow: 0 18px 32px rgba(15, 23, 42, 0.5);
+}
+
 .sidebar-footer {
   display: grid;
   gap: 0.35rem;
   margin-top: 1.75rem;
   padding-top: 1.25rem;
   border-top: 1px solid rgba(53, 92, 125, 0.12);
+}
+
+body.theme-dark .sidebar-footer {
+  border-top: 1px solid rgba(246, 114, 128, 0.3);
 }
 
 .sidebar-link {
@@ -103,6 +133,10 @@
   cursor: pointer;
   font-size: 0.95rem;
   font-weight: 500;
+}
+
+body.theme-dark .sidebar-link {
+  color: rgba(248, 177, 149, 0.78);
 }
 
 .sidebar-link:hover {
@@ -118,6 +152,13 @@
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
+}
+
+body.theme-dark .learning-main {
+  background: rgba(17, 24, 39, 0.82);
+  border: 1px solid rgba(246, 114, 128, 0.3);
+  box-shadow: 0 20px 48px rgba(15, 23, 42, 0.45);
+  color: #fef9f6;
 }
 
 .case-header {
@@ -160,6 +201,11 @@
   letter-spacing: 0.05em;
 }
 
+body.theme-dark .meta-chip {
+  background: rgba(53, 92, 125, 0.5);
+  color: #fef9f6;
+}
+
 .case-body {
   display: grid;
   grid-template-columns: 260px 1fr;
@@ -174,6 +220,11 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+body.theme-dark .document-list {
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(246, 114, 128, 0.28);
 }
 
 .document-list h2 {
@@ -203,13 +254,27 @@
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+body.theme-dark .document-item {
+  background: rgba(17, 24, 39, 0.86);
+  border: 1px solid rgba(246, 114, 128, 0.28);
+  color: #fef9f6;
+}
+
 .document-item strong {
   color: var(--color-deep-blue);
+}
+
+body.theme-dark .document-item strong {
+  color: #fef9f6;
 }
 
 .document-item span {
   color: var(--color-muted);
   font-size: 0.9rem;
+}
+
+body.theme-dark .document-item span {
+  color: rgba(248, 177, 149, 0.78);
 }
 
 .document-item:hover {
@@ -220,6 +285,11 @@
 .document-item.active {
   border-color: rgba(246, 114, 128, 0.7);
   box-shadow: 0 16px 26px rgba(108, 91, 123, 0.2);
+}
+
+body.theme-dark .document-item.active {
+  border-color: rgba(246, 114, 128, 0.9);
+  box-shadow: 0 20px 32px rgba(15, 23, 42, 0.45);
 }
 
 .document-viewer {
@@ -233,6 +303,13 @@
   min-height: 420px;
 }
 
+body.theme-dark .document-viewer {
+  background: rgba(17, 24, 39, 0.88);
+  border: 1px solid rgba(246, 114, 128, 0.28);
+  box-shadow: 0 24px 52px rgba(15, 23, 42, 0.45);
+  color: #fef9f6;
+}
+
 .viewer-toolbar {
   display: flex;
   justify-content: space-between;
@@ -244,6 +321,10 @@
     rgba(53, 92, 125, 0.85)
   );
   color: #fff;
+}
+
+body.theme-dark .viewer-toolbar {
+  background: linear-gradient(135deg, rgba(53, 92, 125, 0.9), rgba(192, 108, 132, 0.65));
 }
 
 .viewer-title {
@@ -269,12 +350,24 @@
   background: rgba(255, 255, 255, 0.35);
 }
 
+body.theme-dark .viewer-actions button {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+body.theme-dark .viewer-actions button:hover {
+  background: rgba(246, 114, 128, 0.4);
+}
+
 .viewer-content {
   padding: 1.5rem;
   max-height: 520px;
   overflow-y: auto;
   color: var(--color-deep-blue);
   line-height: 1.7;
+}
+
+body.theme-dark .viewer-content {
+  color: #fef9f6;
 }
 
 .viewer-content p {
@@ -292,6 +385,14 @@
   margin: 0;
   font-size: 1.6rem;
   color: var(--color-deep-blue);
+}
+
+body.theme-dark .dicom-section h2 {
+  color: #fef9f6;
+}
+
+body.theme-dark .dicom-section__subtitle {
+  color: rgba(248, 177, 149, 0.78);
 }
 
 .dicom-section__subtitle {

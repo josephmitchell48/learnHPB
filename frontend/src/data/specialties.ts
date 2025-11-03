@@ -23,4 +23,10 @@ export const specialties: Specialty[] = [
     description:
       'Dive into splenic preservation, portal interventions, and variceal management.',
   },
+  {
+    id: 'hpb-pancreas',
+    title: 'Pancreas',
+    description:
+      'Explore pancreatic neoplasms, resection strategies, and post-operative care coordination.',
+  },
 ]
