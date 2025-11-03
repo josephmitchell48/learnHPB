@@ -16,26 +16,56 @@ type LearnerState = {
 
 const dataRoot = `${import.meta.env.BASE_URL}webOutput`
 
-const assetCatalog = {
-  hepatic002: {
-    volume: `${dataRoot}/hepaticvessel_002/hepaticvessel_002_volume.vti`,
-    liver: `${dataRoot}/hepaticvessel_002/segmentations/hepaticvessel_002_liver.vtp`,
-    vessels: `${dataRoot}/hepaticvessel_002/segmentations/hepaticvessel_002_vsnet.vtp`,
-    lesion: `${dataRoot}/hepaticvessel_002/segmentations/hepaticvessel_002_task008.vtp`,
+const hpbCaseAssets = [
+  {
+    id: 'case_d466b655',
+    title: 'Segment VII Hepatectomy Planning',
+    focus: 'HCC near the right hepatic vein',
+    volumePath: 'case_d466b655/case_d466b655_volume.vti',
+    structures: [
+      {
+        id: 'structure-liver',
+        name: 'Liver Parenchyma',
+        color: '#f8b195',
+        meshPath: 'case_d466b655/segmentations/case_d466b655_liver.vtp',
+      },
+      {
+        id: 'structure-vessels',
+        name: 'Hepatic Vessels',
+        color: '#355c7d',
+        meshPath: 'case_d466b655/segmentations/case_d466b655_hepatic_vessels.vtp',
+      },
+      {
+        id: 'structure-lesions',
+        name: 'Liver Tumors',
+        color: '#6c5b7b',
+        meshPath: 'case_d466b655/segmentations/case_d466b655_liver_tumors.vtp',
+      },
+    ],
+    metadata: {
+      voxels: '512 × 512 × 320',
+      spacing: '0.75 mm × 0.75 mm × 1.0 mm',
+      notes: 'Synthetic HPB dataset highlighting vascular-tumor relationships.',
+    },
+    documents: [
+      {
+        id: 'doc-radiology',
+        title: 'Triphasic CT Report',
+        summary: 'Arterial enhancement with portal venous washout; margin assessment for resection.',
+      },
+      {
+        id: 'doc-board',
+        title: 'Tumor Board Notes',
+        summary: 'Consensus plan for segment VII resection with vascular reconstruction.',
+      },
+      {
+        id: 'doc-labs',
+        title: 'Preoperative Labs',
+        summary: 'Child-Pugh A profile with adequate liver reserve.',
+      },
+    ],
   },
-  hepatic008: {
-    volume: `${dataRoot}/hepaticvessel_008/hepaticvessel_008_volume.vti`,
-    liver: `${dataRoot}/hepaticvessel_008/segmentations/hepaticvessel_008_liver.vtp`,
-    vessels: `${dataRoot}/hepaticvessel_008/segmentations/hepaticvessel_008_vsnet.vtp`,
-    lesion: `${dataRoot}/hepaticvessel_008/segmentations/hepaticvessel_008_task008.vtp`,
-  },
-  hepatic010: {
-    volume: `${dataRoot}/hepaticvessel_010/hepaticvessel_010_volume.vti`,
-    liver: `${dataRoot}/hepaticvessel_010/segmentations/hepaticvessel_010_liver.vtp`,
-    vessels: `${dataRoot}/hepaticvessel_010/segmentations/hepaticvessel_010_vsnet.vtp`,
-    lesion: `${dataRoot}/hepaticvessel_010/segmentations/hepaticvessel_010_task008.vtp`,
-  },
-}
+]
 
 const LearningPage = () => {
   const navigate = useNavigate()
@@ -52,7 +82,7 @@ const LearningPage = () => {
   const imagingEnabled = !isLightweightMode
 
   const caseStudies = useMemo<CaseStudy[]>(() => {
-    const topic = activeSpecialty?.title ?? 'Clinical'
+    const topic = activeSpecialty?.title ?? 'HPB'
 
     if (!imagingEnabled) {
       return [
@@ -82,151 +112,23 @@ const LearningPage = () => {
       ]
     }
 
-    return [
-      {
-        id: 'case-1',
-        label: `${topic} Case 1`,
-        focus: 'Acute presentation',
+    return hpbCaseAssets
+      .filter((asset) => asset.id.startsWith('case'))
+      .map((asset, index) => ({
+        id: asset.id,
+        label: `${topic} Case ${index + 1}: ${asset.title}`,
+        focus: asset.focus,
         volume: {
-          url: assetCatalog.hepatic002.volume,
+          url: `${dataRoot}/${asset.volumePath}`,
           format: 'vti',
         },
-        metadata: {
-          voxels: '512 × 512 × 320',
-          spacing: '0.75 mm × 0.75 mm × 1.0 mm',
-          notes: 'Initial arterial phase scan capturing primary vascular supply.',
-        },
-        structures: [
-          {
-            id: 'structure-liver',
-            name: `${topic} Parenchyma`,
-            color: '#f8b195',
-            meshUrl: assetCatalog.hepatic002.liver,
-          },
-          {
-            id: 'structure-artery',
-            name: 'Hepatic Vessels',
-            color: '#6c5b7b',
-            meshUrl: assetCatalog.hepatic002.vessels,
-          },
-          {
-            id: 'structure-lesion',
-            name: 'Index Lesion',
-            color: '#355c7d',
-            meshUrl: assetCatalog.hepatic002.lesion,
-          },
-        ],
-        documents: [
-          {
-            id: 'doc-referral',
-            title: 'Patient Referral',
-            summary: 'Summary of presenting complaint and referring provider notes.',
-          },
-          {
-            id: 'doc-labs',
-            title: 'Laboratory Results',
-            summary: 'Comprehensive metabolic panel and relevant biomarkers.',
-          },
-          {
-            id: 'doc-imaging',
-            title: 'Imaging Report',
-            summary: 'Radiology findings with annotations.',
-          },
-        ],
-      },
-      {
-        id: 'case-2',
-        label: `${topic} Case 2`,
-        focus: 'Chronic management',
-        volume: {
-          url: assetCatalog.hepatic008.volume,
-          format: 'vti',
-        },
-        metadata: {
-          voxels: '448 × 448 × 280',
-          spacing: '0.9 mm × 0.9 mm × 1.5 mm',
-          notes: 'Portal venous phase with post-intervention follow-up.',
-        },
-        structures: [
-          {
-            id: 'structure-parenchyma',
-            name: `${topic} Anatomy`,
-            color: '#f67280',
-            meshUrl: assetCatalog.hepatic008.liver,
-          },
-          {
-            id: 'structure-portal',
-            name: 'Portal System',
-            color: '#c06c84',
-            meshUrl: assetCatalog.hepatic008.vessels,
-          },
-          {
-            id: 'structure-lesion-2',
-            name: 'Treatment Zone',
-            color: '#355c7d',
-            meshUrl: assetCatalog.hepatic008.lesion,
-          },
-        ],
-        documents: [
-          {
-            id: 'doc-history',
-            title: 'Medical History',
-            summary: 'Timeline of clinical encounters and prior interventions.',
-          },
-          {
-            id: 'doc-plan',
-            title: 'Care Plan',
-            summary: 'Interdisciplinary approach and follow-up schedule.',
-          },
-        ],
-      },
-      {
-        id: 'case-3',
-        label: `${topic} Case 3`,
-        focus: 'Post-procedural follow-up',
-        volume: {
-          url: assetCatalog.hepatic010.volume,
-          format: 'vti',
-        },
-        metadata: {
-          voxels: '512 × 512 × 220',
-          spacing: '0.8 mm × 0.8 mm × 1.2 mm',
-          notes: 'Delayed phase to evaluate post-operative perfusion.',
-        },
-        structures: [
-          {
-            id: 'structure-organ',
-            name: `${topic} Volume`,
-            color: '#f8b195',
-            meshUrl: assetCatalog.hepatic010.liver,
-          },
-          {
-            id: 'structure-vein',
-            name: 'Venous Drainage',
-            color: '#355c7d',
-            meshUrl: assetCatalog.hepatic010.vessels,
-          },
-          {
-            id: 'structure-tumor',
-            name: 'Residual Lesion',
-            color: '#6c5b7b',
-            meshUrl: assetCatalog.hepatic010.lesion,
-          },
-        ],
-        documents: [
-          {
-            id: 'doc-summary',
-            title: 'Procedure Summary',
-            summary: 'Operating room report and intraoperative decisions.',
-          },
-          {
-            id: 'doc-progress',
-            title: 'Progress Notes',
-            summary: 'Inpatient course and discharge considerations.',
-          },
-        ],
-      },
-    ]
+        metadata: asset.metadata,
+        documents: asset.documents,
+        structures: asset.structures.map(({ meshPath, ...structure }) => ({
+          ...structure,
+          meshUrl: `${dataRoot}/${meshPath}`,
+        })),
+      }))
   }, [activeSpecialty, imagingEnabled])
 
   const [selectedCaseId, setSelectedCaseId] = useState(caseStudies[0]?.id)

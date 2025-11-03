@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+frontend/public/webOutput/
+frontend/*.nii.gz
+frontend/*.zip
+*.vtp
+*.vti
+EOF

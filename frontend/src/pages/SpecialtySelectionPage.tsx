@@ -31,11 +31,11 @@ const SpecialtySelectionPage = () => {
   return (
     <div className="page-layout">
       <div className="panel">
-        <h2 className="panel-title">Choose a specialty to explore</h2>
+        <h2 className="panel-title">Select an HPB focus area</h2>
         <p className="panel-subtitle">
           {capitalizedRole
-            ? `Let’s get started with resources curated for ${capitalizedRole}s.`
-            : 'Select a specialty tile to preview tailored content.'}
+            ? `Let’s get started with hepatopancreatobiliary resources tailored for ${capitalizedRole}s.`
+            : 'Choose a hepatopancreatobiliary sub-specialty to preview tailored cases and imaging.'}
         </p>
 
         <div className="card-grid">
@@ -59,8 +59,8 @@ const SpecialtySelectionPage = () => {
             <h3>{selectedSpecialty.title}</h3>
             <p>
               {role
-                ? `Preparing ${roleArticle} ${capitalizedRole} learning pathway for ${selectedSpecialty.title}.`
-                : `Great choice! We will tailor content for ${selectedSpecialty.title}.`}
+                ? `Preparing ${roleArticle} ${capitalizedRole} learning pathway for the ${selectedSpecialty.title} service.`
+                : `Great choice! We will tailor HPB content for the ${selectedSpecialty.title} focus area.`}
             </p>
             <button
               className="primary-button"

@@ -1,0 +1,17 @@
+{
+  "case_id": "case_d466b655",
+  "labels_task008": {
+    "1": "hepatic_vessels",
+    "2": "liver_tumors"
+  },
+  "liver_seconds": 25.95,
+  "task008_seconds": 44.36,
+  "timestamp": 1762194596.2121747,
+  "request_id": "req_e725c692",
+  "meshes": {
+    "hepatic_vessels": "segmentations/case_d466b655_hepatic_vessels.vtp",
+    "liver": "segmentations/case_d466b655_liver.vtp",
+    "liver_tumors": "segmentations/case_d466b655_liver_tumors.vtp"
+  },
+  "volume": "segmentations/case_d466b655_volume.vti"
+}

@@ -6,43 +6,21 @@ export type Specialty = {
 
 export const specialties: Specialty[] = [
   {
-    id: 'cardiology',
-    title: 'Cardiology',
-    description: 'Focus on cardiovascular conditions and interventions.',
+    id: 'hpb-liver',
+    title: 'Liver',
+    description:
+      'Focus on hepatic tumors, resections, and transplant readiness in HPB practice.',
   },
   {
-    id: 'endocrinology',
-    title: 'Endocrinology',
-    description: 'Dive into hormone-related disorders and treatments.',
+    id: 'hpb-gallbladder',
+    title: 'Gallbladder & Biliary',
+    description:
+      'Review cholecystectomy pathways, biliary reconstructions, and cholangiocarcinoma care.',
   },
   {
-    id: 'gastroenterology',
-    title: 'Gastroenterology',
-    description: 'Study the digestive system and hepatobiliary care.',
-  },
-  {
-    id: 'neurology',
-    title: 'Neurology',
-    description: 'Explore the nervous system and neurological disorders.',
-  },
-  {
-    id: 'oncology',
-    title: 'Oncology',
-    description: 'Learn the latest in cancer diagnosis and treatment.',
-  },
-  {
-    id: 'pediatrics',
-    title: 'Pediatrics',
-    description: 'Care for infants, children, and adolescent patients.',
-  },
-  {
-    id: 'radiology',
-    title: 'Radiology',
-    description: 'Master imaging techniques for accurate diagnosis.',
-  },
-  {
-    id: 'surgery',
-    title: 'Surgery',
-    description: 'Plan and execute surgical procedures confidently.',
+    id: 'hpb-spleen',
+    title: 'Spleen & Portal Hypertension',
+    description:
+      'Dive into splenic preservation, portal interventions, and variceal management.',
   },
 ]
