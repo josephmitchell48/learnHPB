@@ -31,6 +31,13 @@ const sliceLabels: Record<SliceAxis, string> = {
   i: 'Sagittal',
 }
 
+const mainSliceOrientation: Partial<
+  Record<SliceAxis, { viewUp: [number, number, number]; direction: [number, number, number] }>
+> = {
+  j: { viewUp: [0, 0, 1], direction: [0, -1, 0] },
+  i: { viewUp: [0, 0, 1], direction: [1, 0, 0] },
+}
+
 const defaultStructureVisibility = (structures: ViewerStructure[]) =>
   structures.reduce<Record<string, boolean>>(
     (acc, structure) => ({ ...acc, [structure.id]: true }),
@@ -55,7 +62,7 @@ const DicomViewer = ({
   imagingEnabled = true,
 }: DicomViewerProps) => {
   const volumeContainerRef = useRef<HTMLDivElement | null>(null)
-  const sliceCanvasRef = useRef<HTMLDivElement | null>(null)
+  const sliceMainRef = useRef<HTMLDivElement | null>(null)
   const volumeRendererRef = useRef<VolumeRenderer3DHandle | null>(null)
 
   const {
@@ -169,6 +176,8 @@ const DicomViewer = ({
     loadingMessage ??
     errorMessage
 
+  const activeMainOrientation = mainSliceOrientation[activeSliceAxis]
+
   return (
     <div className="dicom-viewer">
       <header className="dicom-viewer__header">
@@ -242,7 +251,7 @@ const DicomViewer = ({
             ) : (
               <>
                 <div className="dicom-viewer__slice-wrapper">
-                  <div ref={sliceCanvasRef} className="dicom-viewer__slice-canvas" />
+                  <div ref={sliceMainRef} className="dicom-viewer__slice-canvas" />
                 </div>
                 <div className="dicom-viewer__slice-sliderRow">
                   <span>{sliceLabels[activeSliceAxis]} slice</span>
@@ -356,11 +365,13 @@ const DicomViewer = ({
       )}
       {imagingEnabled && viewMode === '2d' && (
         <SliceViewer2D
-          containerRef={sliceCanvasRef}
+          containerRef={sliceMainRef}
           imageDataRef={imageDataRef}
           axis={activeSliceAxis}
           slice={currentSliceValue}
           version={version}
+          viewUp={activeMainOrientation?.viewUp}
+          direction={activeMainOrientation?.direction}
         />
       )}
     </div>

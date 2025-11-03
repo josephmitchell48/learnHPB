@@ -147,7 +147,7 @@
   overflow: hidden;
   border: 1px solid rgba(53, 92, 125, 0.16);
   box-shadow: 0 24px 48px rgba(17, 24, 39, 0.25);
-  min-height: 420px;
+  min-height: 600px;
 }
 
 .dicom-viewer__stage.light {
@@ -187,9 +187,10 @@
 }
 
 .dicom-viewer__viewport {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: clamp(600px, 75vh, 960px);
 }
 
 .dicom-viewer__slice-panel {
@@ -202,7 +203,7 @@
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  min-height: 420px;
+  min-height: 600px;
 }
 
 .dicom-viewer__slice-panel.hidden {
@@ -242,7 +243,7 @@
   background: #0f172a;
   box-shadow: 0 20px 40px rgba(17, 24, 39, 0.25);
   overflow: hidden;
-  min-height: 360px;
+  min-height: 520px;
 }
 
 .dicom-viewer__slice-canvas {
@@ -285,6 +286,13 @@
   box-shadow: 0 24px 48px rgba(17, 24, 39, 0.12);
 }
 
+body.theme-dark .dicom-viewer__controls {
+  background: rgba(17, 24, 39, 0.82);
+  border: 1px solid rgba(246, 114, 128, 0.3);
+  box-shadow: 0 24px 56px rgba(15, 23, 42, 0.45);
+  color: #fef9f6;
+}
+
 .dicom-viewer__control-group {
   display: flex;
   flex-direction: column;
@@ -297,15 +305,24 @@
   font-size: 1.05rem;
 }
 
+body.theme-dark .dicom-viewer__control-group h3 {
+  color: #fef9f6;
+}
+
 .dicom-viewer__control-buttons {
   display: flex;
   flex-wrap: wrap;
   gap: 0.75rem;
 }
 
-@media (max-width: 1200px) {
-  .dicom-viewer__controls {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+@media (min-width: 1100px) {
+  .dicom-viewer__stage,
+  .dicom-viewer__slice-panel {
+    min-height: 720px;
+  }
+
+  .dicom-viewer__slice-wrapper {
+    min-height: 600px;
   }
 }
 
