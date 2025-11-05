@@ -206,92 +206,6 @@ body.theme-dark .meta-chip {
   color: #fef9f6;
 }
 
-.case-body {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 1.8rem;
-  align-items: start;
-}
-
-.document-list {
-  background: rgba(53, 92, 125, 0.07);
-  border-radius: 1rem;
-  padding: 1.2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-body.theme-dark .document-list {
-  background: rgba(15, 23, 42, 0.78);
-  border: 1px solid rgba(246, 114, 128, 0.28);
-}
-
-.document-list h2 {
-  margin: 0;
-  font-size: 1.2rem;
-  color: var(--color-deep-blue);
-}
-
-.document-list ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.6rem;
-}
-
-.document-item {
-  width: 100%;
-  text-align: left;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(53, 92, 125, 0.12);
-  border-radius: 0.9rem;
-  padding: 0.85rem;
-  cursor: pointer;
-  display: grid;
-  gap: 0.35rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-body.theme-dark .document-item {
-  background: rgba(17, 24, 39, 0.86);
-  border: 1px solid rgba(246, 114, 128, 0.28);
-  color: #fef9f6;
-}
-
-.document-item strong {
-  color: var(--color-deep-blue);
-}
-
-body.theme-dark .document-item strong {
-  color: #fef9f6;
-}
-
-.document-item span {
-  color: var(--color-muted);
-  font-size: 0.9rem;
-}
-
-body.theme-dark .document-item span {
-  color: rgba(248, 177, 149, 0.78);
-}
-
-.document-item:hover {
-  border-color: rgba(246, 114, 128, 0.4);
-  box-shadow: 0 12px 20px rgba(192, 108, 132, 0.18);
-}
-
-.document-item.active {
-  border-color: rgba(246, 114, 128, 0.7);
-  box-shadow: 0 16px 26px rgba(108, 91, 123, 0.2);
-}
-
-body.theme-dark .document-item.active {
-  border-color: rgba(246, 114, 128, 0.9);
-  box-shadow: 0 20px 32px rgba(15, 23, 42, 0.45);
-}
-
 .document-viewer {
   background: rgba(255, 255, 255, 0.92);
   border-radius: 1rem;
@@ -308,6 +222,39 @@ body.theme-dark .document-viewer {
   border: 1px solid rgba(246, 114, 128, 0.28);
   box-shadow: 0 24px 52px rgba(15, 23, 42, 0.45);
   color: #fef9f6;
+}
+
+.document-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.viewer-content .document-header {
+  display: grid;
+  justify-items: center;
+  gap: 0.5rem;
+  padding: 1.5rem 1.75rem 1rem;
+  text-align: center;
+}
+
+.viewer-content .document-header__logo {
+  height: 48px;
+  width: auto;
+  object-fit: contain;
+}
+
+.viewer-content .document-header__disclaimer {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(53, 92, 125, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+body.theme-dark .viewer-content .document-header__disclaimer {
+  color: rgba(248, 177, 149, 0.78);
 }
 
 .viewer-toolbar {
@@ -370,6 +317,132 @@ body.theme-dark .viewer-content {
   color: #fef9f6;
 }
 
+
+.document-list-row {
+  background: rgba(53, 92, 125, 0.07);
+  border-radius: 1rem;
+  padding: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid rgba(53, 92, 125, 0.12);
+}
+
+body.theme-dark .document-list-row {
+  background: rgba(17, 24, 39, 0.78);
+  border: 1px solid rgba(246, 114, 128, 0.28);
+}
+
+.document-list-row h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-deep-blue);
+  white-space: nowrap;
+}
+
+body.theme-dark .document-list-row h2 {
+  color: #fef9f6;
+}
+
+.document-row-buttons {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+
+.document-item {
+  flex: 1 1 auto;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(53, 92, 125, 0.12);
+  border-radius: 0.9rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--color-deep-blue);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.document-item:hover {
+  border-color: rgba(246, 114, 128, 0.4);
+  box-shadow: 0 12px 20px rgba(192, 108, 132, 0.18);
+  transform: translateX(4px);
+}
+
+.document-item.active {
+  border-color: rgba(246, 114, 128, 0.7);
+  box-shadow: 0 16px 26px rgba(108, 91, 123, 0.2);
+  background: linear-gradient(135deg, rgba(248, 177, 149, 0.85), rgba(246, 114, 128, 0.75));
+  color: #fff;
+}
+
+body.theme-dark .document-item {
+  background: rgba(17, 24, 39, 0.82);
+  border: 1px solid rgba(246, 114, 128, 0.28);
+  color: #fef9f6;
+}
+
+body.theme-dark .document-item.active {
+  border-color: rgba(246, 114, 128, 0.9);
+  box-shadow: 0 20px 32px rgba(15, 23, 42, 0.45);
+  background: linear-gradient(135deg, rgba(246, 114, 128, 0.9), rgba(53, 92, 125, 0.85));
+}
+
+.viewer-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.viewer-content thead {
+  background: rgba(53, 92, 125, 0.08);
+}
+
+.viewer-content th,
+.viewer-content td {
+  border: 1px solid rgba(53, 92, 125, 0.18);
+  padding: 0.6rem 0.75rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+body.theme-dark .viewer-content thead {
+  background: rgba(53, 92, 125, 0.5);
+}
+
+body.theme-dark .viewer-content th,
+body.theme-dark .viewer-content td {
+  border-color: rgba(246, 114, 128, 0.28);
+}
+
+.viewer-content .document-body-html ul {
+  margin: 0 0 1rem 1.2rem;
+  padding: 0;
+}
+
+.viewer-content .document-body-html li {
+  margin-bottom: 0.4rem;
+}
+
+.viewer-content h4 {
+  margin: 1.2rem 0 0.35rem;
+  font-size: 1.05rem;
+  color: var(--color-deep-blue);
+}
+
+body.theme-dark .viewer-content h4 {
+  color: #fef9f6;
+}
+
+.viewer-content ol {
+  margin: 0 0 1rem 1.4rem;
+  padding: 0;
+}
+
 .viewer-content p {
   margin-bottom: 1.4rem;
 }
@@ -402,6 +475,18 @@ body.theme-dark .dicom-section__subtitle {
 }
 
 @media (max-width: 1024px) {
+  .document-stack {
+    gap: 1.25rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .document-list {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 1024px) {
   .learning-layout {
     grid-template-columns: 1fr;
   }
@@ -419,9 +504,6 @@ body.theme-dark .dicom-section__subtitle {
     padding: 1.75rem;
   }
 
-  .case-body {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 640px) {

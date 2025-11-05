@@ -1,0 +1,29 @@
+<svg width="360" height="120" viewBox="0 0 360 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="nshealthLogoTitle nshealthLogoDesc">
+  <title id="nshealthLogoTitle">Nova Scotia Health</title>
+  <desc id="nshealthLogoDesc">Recreated Nova Scotia Health logo with three wave motif for educational mock-ups.</desc>
+  <defs>
+    <linearGradient id="waveDark" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#006BA6" />
+      <stop offset="100%" stop-color="#0096C8" />
+    </linearGradient>
+    <linearGradient id="waveMid" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00A1BB" />
+      <stop offset="100%" stop-color="#2BC4D9" />
+    </linearGradient>
+    <linearGradient id="waveLight" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6CD556" />
+      <stop offset="100%" stop-color="#24B04A" />
+    </linearGradient>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <!-- upper dark wave -->
+    <path d="M15 62c20-25 47-42 87-32 32 7 66 47 103 4 14-15 31-24 51-24 30 0 54 14 70 42l-18 10c-11-22-28-33-52-33-13 0-25 6-36 19-21 24-45 30-70 22-33-10-56-36-100 12l-35-20z" fill="url(#waveDark)"/>
+    <!-- middle aqua wave -->
+    <path d="M32 80c18-18 39-29 68-21 23 6 46 31 73 12 13-9 28-13 45-9 19 4 32 15 42 32l-18 11c-8-14-18-22-32-25-11-2-21 1-31 9-33 25-63 6-82-4-22-12-41-10-59 12l-6-17z" fill="url(#waveMid)"/>
+    <!-- lower green wave -->
+    <path d="M46 96c10-12 25-18 43-14 12 3 23 12 34 12 10 0 19-3 27-10l10 12c-11 11-24 17-39 17-13 0-24-6-34-9-15-5-27-1-38 9l-3-17z" fill="url(#waveLight)"/>
+    <!-- wordmark -->
+    <text x="150" y="55" font-family="'Inter','Segoe UI',Arial,sans-serif" font-size="32" font-weight="600" fill="#5B6770">nova scotia</text>
+    <text x="150" y="102" font-family="'Inter','Segoe UI',Arial,sans-serif" font-size="56" font-weight="600" fill="#006BA6">health</text>
+  </g>
+</svg>

@@ -8,6 +8,8 @@ export type CaseDocument = {
   id: string
   title: string
   summary: string
+  format?: 'plain' | 'html'
+  body: string
 }
 
 export type CaseStudy = {

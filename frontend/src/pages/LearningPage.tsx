@@ -96,13 +96,28 @@ const LearningPage = () => {
             {
               id: 'doc-ux-overview',
               title: 'Scenario Overview',
-              summary:
-                'High-level patient context for UI review. Imaging loads are disabled to prioritise layout tweaks.',
+            summary:
+              'High-level patient context for UI review. Imaging loads are disabled to prioritise layout tweaks.',
+            body: `This lightweight scenario mirrors the hepatic oncology case flow but removes imaging assets so
+designers can iterate quickly.
+
+Key points:
+• Landing on this page should reinforce the user’s selected specialty and role.
+• Document navigation must work at all viewport sizes without loading volumetric data.
+• The sidebar and document pane should remain interactive, allowing reviewers to simulate their
+  typical workflow while validating copy, spacing, and responsive states.`
             },
             {
               id: 'doc-checklist',
               title: 'Interaction Checklist',
-              summary: 'Track UI flows, ensure navigation clarity, and update notes inline.',
+            summary: 'Track UI flows, ensure navigation clarity, and update notes inline.',
+            body: `Use this checklist while reviewing the UI without imaging assets:
+
+1. Confirm the selected role and specialty persist when navigating forward/back.
+2. Verify the document list highlights the active item and announces changes for screen readers.
+3. Test tab order and keyboard interactions for the document list and viewer controls.
+4. Resize the window to ensure the layout degrades gracefully to a single column.
+5. Capture feedback on copy tone, spacing, and any accessibility flags before re-enabling imaging.`
             },
           ],
           structures: [],

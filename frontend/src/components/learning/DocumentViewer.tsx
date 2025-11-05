@@ -6,14 +6,6 @@ type DocumentViewerProps = {
   onSelectDocument: (documentId: string) => void
 }
 
-const placeholderDocument = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent porttitor congue erat,
-non commodo magna porta quis. Sed porta volutpat elit, nec iaculis mauris blandit nec. Morbi vitae
-venenatis felis. Suspendisse potenti. Sed malesuada lorem id aliquam lacinia. Pellentesque sit amet
-felis a nisl feugiat tempus. Donec pulvinar volutpat nunc, sed gravida massa accumsan et. Fusce at
-libero eu augue aliquet hendrerit. Integer euismod, ligula non imperdiet semper, neque erat iaculis
-metus, ac aliquet risus nibh vitae augue. Nulla facilisi. Quisque dignissim consequat nisi, vitae
-tempor ante vulputate ac.`
-
 const DocumentViewer = ({
   documents,
   selectedDocumentId,
@@ -22,28 +14,49 @@ const DocumentViewer = ({
   const activeDocument =
     documents.find((doc) => doc.id === selectedDocumentId) ?? documents[0]
 
+  const logoSrc = '/assets/nova-scotia-health-logo.png'
+
+  const renderBody = () => {
+    if (!activeDocument) {
+      return <p>No document content available.</p>
+    }
+
+    if (activeDocument.format === 'html') {
+      return (
+        <div
+          className="document-body-html"
+          dangerouslySetInnerHTML={{ __html: activeDocument.body }}
+        />
+      )
+    }
+
+    const paragraphs = activeDocument.body
+      .split(/\n{2,}/)
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean)
+
+    return paragraphs.length ? (
+      paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)
+    ) : (
+      <p>No document content available.</p>
+    )
+  }
+
   return (
-    <div className="case-body">
-      <div className="document-list">
-        <h2>Document List</h2>
-        <ul>
+    <div className="document-stack">
+      <div className="document-list-row">
+        <div className="document-row-buttons">
           {documents.map((doc) => (
-            <li key={doc.id}>
-              <button
-                type="button"
-                className={
-                  doc.id === selectedDocumentId
-                    ? 'document-item active'
-                    : 'document-item'
-                }
-                onClick={() => onSelectDocument(doc.id)}
-              >
-                <strong>{doc.title}</strong>
-                <span>{doc.summary}</span>
-              </button>
-            </li>
+            <button
+              key={doc.id}
+              type="button"
+              className={doc.id === activeDocument?.id ? 'document-item active' : 'document-item'}
+              onClick={() => onSelectDocument(doc.id)}
+            >
+              {doc.title}
+            </button>
           ))}
-        </ul>
+        </div>
       </div>
 
       <div className="document-viewer">
@@ -58,9 +71,13 @@ const DocumentViewer = ({
           </div>
         </div>
         <div className="viewer-content">
-          <p>{placeholderDocument}</p>
-          <p>{placeholderDocument}</p>
-          <p>{placeholderDocument}</p>
+          <div className="document-header">
+            <img src={logoSrc} alt="Nova Scotia Health" className="document-header__logo" />
+            <p className="document-header__disclaimer">
+              Educational sample – not real patient documentation. Content generated for training only.
+            </p>
+          </div>
+          {renderBody()}
         </div>
       </div>
     </div>
