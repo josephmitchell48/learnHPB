@@ -51,19 +51,158 @@ const hpbCaseAssets = [
     },
     documents: [
       {
-        id: 'doc-radiology',
-        title: 'Triphasic CT Report',
-        summary: 'Arterial enhancement with portal venous washout; margin assessment for resection.',
-      },
-      {
-        id: 'doc-board',
-        title: 'Tumor Board Notes',
-        summary: 'Consensus plan for segment VII resection with vascular reconstruction.',
+        id: 'doc-referral',
+        title: 'Patient Referral',
+        summary: 'Primary care summary requesting HPB surgical consultation for a segment VII lesion.',
+        format: 'html',
+        body: `<section>
+  <h4>Referral Overview</h4>
+  <p><strong>From:</strong> Dr. Amina Patel, Central Family Medicine<br/>
+     <strong>To:</strong> Hepatopancreatobiliary Surgical Service<br/>
+     <strong>Date:</strong> 3 February 2025</p>
+  <p>Mr. Devon Chambers (DOB: 12 May 1962) was seen in clinic following incidental detection of a 3.2 cm hepatic lesion in segment VII on abdominal ultrasound performed for escalating right flank discomfort. His performance status remains ECOG 1 and he continues to work full-time as an electrician.</p>
+  <h5>Relevant Medical History</h5>
+  <ul>
+    <li><strong>14 Aug 2017:</strong> Laparoscopic cholecystectomy for symptomatic cholelithiasis; recovery uncomplicated.</li>
+    <li><strong>22 Jun 2019:</strong> Hepatitis C successfully treated with glecaprevir/pibrentasvir; sustained virologic response documented Dec 2019.</li>
+    <li><strong>09 Nov 2023:</strong> Screening colonoscopy — two sigmoid polyps removed, tubular adenomas, 5-year surveillance interval recommended.</li>
+    <li><strong>16 Jan 2025:</strong> Triphasic CT demonstrating arterially enhancing lesion with portal venous washout abutting the right hepatic vein.</li>
+  </ul>
+  <p>Past medical history otherwise includes well-controlled hypertension (lisinopril 10 mg daily) and type 2 diabetes managed with metformin alone. No known drug allergies. Social history notable for 15 pack-year smoking history, quit 2015; alcohol use limited to 1–2 drinks/week.</p>
+  <p>Physical examination revealed mild hepatomegaly without tenderness or stigmata of chronic liver disease. No jaundice, ascites, or peripheral edema.</p>
+  <p>The patient and family are motivated to pursue curative-intent therapy should he be a candidate. Please arrange an expedited consultation with the HPB surgical specialist to review resection feasibility and coordinate multidisciplinary input.</p>
+</section>`,
       },
       {
         id: 'doc-labs',
-        title: 'Preoperative Labs',
-        summary: 'Child-Pugh A profile with adequate liver reserve.',
+        title: 'Laboratory Results',
+        summary: 'Comprehensive preoperative labs with reference ranges for hepatic optimisation.',
+        format: 'html',
+        body: `<section>
+  <h4>Key Laboratory Findings</h4>
+  <table>
+    <thead>
+      <tr>
+        <th>Test</th>
+        <th>Result</th>
+        <th>Units</th>
+        <th>Reference Range</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Hemoglobin</td>
+        <td>132</td>
+        <td>g/L</td>
+        <td>120–160 g/L</td>
+      </tr>
+      <tr>
+        <td>Platelets</td>
+        <td>218</td>
+        <td>×10<sup>9</sup>/L</td>
+        <td>150–400 ×10<sup>9</sup>/L</td>
+      </tr>
+      <tr>
+        <td>INR</td>
+        <td>1.0</td>
+        <td>ratio</td>
+        <td>0.9–1.1</td>
+      </tr>
+      <tr>
+        <td>AST</td>
+        <td>32</td>
+        <td>U/L</td>
+        <td>0–35 U/L</td>
+      </tr>
+      <tr>
+        <td>ALT</td>
+        <td>29</td>
+        <td>U/L</td>
+        <td>0–45 U/L</td>
+      </tr>
+      <tr>
+        <td>Total Bilirubin</td>
+        <td>11</td>
+        <td>µmol/L</td>
+        <td>3–21 µmol/L</td>
+      </tr>
+      <tr>
+        <td>Albumin</td>
+        <td>41</td>
+        <td>g/L</td>
+        <td>35–50 g/L</td>
+      </tr>
+      <tr>
+        <td>Creatinine</td>
+        <td>76</td>
+        <td>µmol/L</td>
+        <td>60–110 µmol/L</td>
+      </tr>
+      <tr>
+        <td>Alpha-fetoprotein</td>
+        <td>18</td>
+        <td>µg/L</td>
+        <td>&lt;10 µg/L</td>
+      </tr>
+      <tr>
+        <td>Child-Pugh Score</td>
+        <td>A5</td>
+        <td>—</td>
+        <td>A5–A6 (compensated)</td>
+      </tr>
+    </tbody>
+  </table>
+  <p>Trend review over the past 3 months shows stable transaminases and improving platelet count following eradication of hepatitis C. No features of decompensated cirrhosis identified.</p>
+</section>`,
+      },
+      {
+        id: 'doc-procedure',
+        title: 'Tentative Procedure Summary',
+        summary: 'Planned segment VII hepatectomy with vascular control strategy and perioperative considerations.',
+        format: 'html',
+        body: `<section>
+  <h4>Operative Objective</h4>
+  <p>Proceed with an open, parenchyma-sparing resection of segment VII to achieve oncologic clearance while preserving right hepatic venous outflow.</p>
+  <h4>Key Steps</h4>
+  <ol>
+    <li>Mobilise right lobe with preservation of inferior vena cava adhesions; perform intraoperative ultrasound to confirm tumour margins.</li>
+    <li>Control inflow via selective clamping of the posterior right portal pedicle; intermittent Pringle manoeuvre on standby.</li>
+    <li>Demarcate segment VII and resect using cavitron ultrasonic surgical aspirator with bipolar sealing of small venous branches.</li>
+    <li>Reconstruct small tributary of the right hepatic vein if required using 6-0 Prolene patch.</li>
+  </ol>
+  <h4>Perioperative Plan</h4>
+  <ul>
+    <li>Haemodynamic monitoring in step-down unit for first 24 hours.</li>
+    <li>Enhanced recovery pathway with early mobilisation and liver-friendly analgesia strategy.</li>
+    <li>Multidisciplinary discussion with interventional radiology for contingency ablation if margin clearance inadequate.</li>
+  </ul>
+  <p>Proceed pending final anaesthetic assessment and patient consent after HPB specialist consultation.</p>
+</section>`,
+      },
+      {
+        id: 'doc-imaging',
+        title: 'Imaging Reports',
+        summary: 'Triphasic CT interpretation highlighting hepatic arterial anatomy and tumour relation to vasculature.',
+        format: 'html',
+        body: `<section>
+  <h4>CT Triphasic Liver Study (16 Jan 2025)</h4>
+  <p><strong>Technique:</strong> Multi-detector CT of the abdomen with arterial, portal venous, and delayed phases (slice thickness 1 mm). Oral contrast withheld. IV contrast: 120 mL Iohexol 350 at 4 mL/s.</p>
+  <h5>Findings</h5>
+  <ul>
+    <li><strong>Arterial phase:</strong> 3.2 × 2.9 cm hyperenhancing lesion in segment VII with capsule appearance; abuts but does not invade the right hepatic vein.</li>
+    <li><strong>Portal venous phase:</strong> Lesion demonstrates classic washout, enhancing rim persists. No additional lesions identified.</li>
+    <li><strong>Delayed phase:</strong> Subtle capsule with no biliary dilation. Segmental perfusion of remnant liver preserved.</li>
+    <li><strong>Vascular anatomy:</strong> Right hepatic artery arises conventionally. Accessory inferior right hepatic vein patent.</li>
+    <li><strong>Lymph nodes:</strong> No pathologic regional lymphadenopathy; porta hepatis nodes &lt;8 mm short axis.</li>
+  </ul>
+  <h5>Impression</h5>
+  <ol>
+    <li>LIRADS-5 lesion in segment VII consistent with hepatocellular carcinoma.</li>
+    <li>No macrovascular invasion or extrahepatic disease identified.</li>
+    <li>Adequate future liver remnant estimated at 62% assuming segment VII resection.</li>
+  </ol>
+  <p>Please correlate with laboratory data and proceed with HPB surgical evaluation as requested.</p>
+</section>`,
       },
     ],
   },

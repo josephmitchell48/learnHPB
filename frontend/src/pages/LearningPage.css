@@ -349,12 +349,14 @@ body.theme-dark .document-list-row h2 {
   display: flex;
   gap: 0.6rem;
   width: 100%;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
 }
 
 
 .document-item {
-  flex: 1 1 auto;
+  flex: 0 0 auto;
   text-align: center;
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(53, 92, 125, 0.12);
