@@ -1,52 +1,38 @@
-import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { specialties } from '../data/specialties'
-import type { Specialty } from '../data/specialties'
 
 type LocationState = {
   role?: string
   email?: string
   provider?: string
-  specialty?: Specialty
 }
 
 const SpecialtySelectionPage = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { role, specialty: incomingSpecialty } =
-    (location.state as LocationState) ?? {}
-  const [selectedSpecialty, setSelectedSpecialty] = useState<Specialty | null>(
-    () =>
-      incomingSpecialty
-        ? specialties.find((item) => item.id === incomingSpecialty.id) ?? null
-        : null,
-  )
-
-  const capitalizedRole = role
-    ? role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
-    : null
-  const roleArticle =
-    capitalizedRole && /^[aeiou]/i.test(capitalizedRole) ? 'an' : 'a'
+  const { role, email, provider } = (location.state as LocationState) ?? {}
 
   return (
     <div className="page-layout">
       <div className="panel">
         <h2 className="panel-title">Select an HPB focus area</h2>
-        <p className="panel-subtitle">
-          {capitalizedRole
-            ? `Let’s get started with hepatopancreatobiliary resources tailored for ${capitalizedRole}s.`
-            : 'Choose a hepatopancreatobiliary sub-specialty to preview tailored cases and imaging.'}
-        </p>
-
         <div className="card-grid two-columns">
           {specialties.map((specialty) => {
-            const isActive = selectedSpecialty?.id === specialty.id
             return (
               <button
                 key={specialty.id}
-                className={`card-button specialty-card ${isActive ? 'active' : ''}`}
+                className="card-button specialty-card"
                 type="button"
-                onClick={() => setSelectedSpecialty(specialty)}
+                onClick={() =>
+                  navigate(`/learning/${specialty.id}`, {
+                    state: {
+                      role: role ?? 'guest',
+                      email,
+                      provider,
+                      specialty,
+                    },
+                  })
+                }
               >
                 <div className="card-accent" aria-hidden />
                 <div className="card-content">
@@ -57,28 +43,6 @@ const SpecialtySelectionPage = () => {
             )
           })}
         </div>
-
-        {selectedSpecialty && (
-          <div className="selection-summary">
-            <h3>{selectedSpecialty.title}</h3>
-            <p>
-              {role
-                ? `Preparing ${roleArticle} ${capitalizedRole} learning pathway for the ${selectedSpecialty.title} service.`
-                : `Great choice! We will tailor HPB content for the ${selectedSpecialty.title} focus area.`}
-            </p>
-            <button
-              className="primary-button"
-              type="button"
-              onClick={() =>
-                navigate(`/learning/${selectedSpecialty.id}`, {
-                  state: { role: role ?? 'guest', specialty: selectedSpecialty },
-                })
-              }
-            >
-              Continue with {selectedSpecialty.title}
-            </button>
-          </div>
-        )}
 
         <button className="link-button" onClick={() => navigate('/role')}>
           Back to role selection

@@ -10,7 +10,7 @@ const roles = [
     id: 'educator',
     title: 'Educator',
     description:
-      'Access curriculum tools, create learning experiences, and monitor learner progress.',
+      'Coming Soon!!',
   },
   {
     id: 'student',
@@ -31,30 +31,25 @@ const RoleSelectionPage = () => {
 
   return (
     <div className="page-layout">
-      <div className="panel">
-        <h2 className="panel-title">Choose your role</h2>
-        <p className="panel-subtitle">
-          We tailor the experience based on how you use LearnHPB.
-        </p>
-        <div className="card-grid two-columns">
-          {roles.map((role) => (
+      <div className="card-grid two-columns">
+        {roles.map((role) => {
+          const isEducator = role.id === 'educator'
+          return (
             <button
               key={role.id}
-              className="card-button role-card"
+              className={`card-button role-card${isEducator ? ' role-card--disabled' : ''}`}
               type="button"
-              onClick={() => goToSpecialties(role.id)}
+              disabled={isEducator}
+              aria-disabled={isEducator}
+              onClick={
+                isEducator ? undefined : () => goToSpecialties(role.id)
+              }
             >
-              <h3>{role.title}</h3>
-              <p>{role.description}</p>
+              <h1 className="panel-title">{role.title}</h1>
+              <h3 className="role-card-text">{role.description}</h3>
             </button>
-          ))}
-        </div>
-        {(email || provider) && (
-          <p className="hint">
-            Signed in as{' '}
-            {email ? email : `via ${provider?.toLocaleLowerCase() ?? 'SSO'}`}.
-          </p>
-        )}
+          )
+        })}
       </div>
     </div>
   )

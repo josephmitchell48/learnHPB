@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import type { Specialty } from '../data/specialties'
 import { specialties } from '../data/specialties'
+import { learningAssets, type LearningAsset } from '../data/learningContent'
 import DicomViewer from '../components/dicom/DicomViewer'
 import CaseSidebar from '../components/learning/CaseSidebar'
 import DocumentViewer from '../components/learning/DocumentViewer'
+import AssessmentModule from '../components/learning/AssessmentModule'
 import SettingsModal from '../components/modals/SettingsModal'
 import type { CaseStudy } from '../types/learning'
 import { isLightweightMode } from '../config/environment'
@@ -17,57 +19,6 @@ type LearnerState = {
 }
 
 const dataRoot = `${import.meta.env.BASE_URL}webOutput`
-
-const hpbCaseAssets = [
-  {
-    id: 'case_d466b655',
-    title: 'Segment VII Hepatectomy Planning',
-    focus: 'HCC near the right hepatic vein',
-    volumePath: 'case_d466b655/case_d466b655_volume.vti',
-    structures: [
-      {
-        id: 'structure-liver',
-        name: 'Liver Parenchyma',
-        color: '#f8b195',
-        meshPath: 'case_d466b655/segmentations/case_d466b655_liver.vtp',
-      },
-      {
-        id: 'structure-vessels',
-        name: 'Hepatic Vessels',
-        color: '#355c7d',
-        meshPath: 'case_d466b655/segmentations/case_d466b655_hepatic_vessels.vtp',
-      },
-      {
-        id: 'structure-lesions',
-        name: 'Liver Tumors',
-        color: '#6c5b7b',
-        meshPath: 'case_d466b655/segmentations/case_d466b655_liver_tumors.vtp',
-      },
-    ],
-    metadata: {
-      voxels: '512 × 512 × 320',
-      spacing: '0.75 mm × 0.75 mm × 1.0 mm',
-      notes: 'Synthetic HPB dataset highlighting vascular-tumor relationships.',
-    },
-    documents: [
-      {
-        id: 'doc-radiology',
-        title: 'Triphasic CT Report',
-        summary: 'Arterial enhancement with portal venous washout; margin assessment for resection.',
-      },
-      {
-        id: 'doc-board',
-        title: 'Tumor Board Notes',
-        summary: 'Consensus plan for segment VII resection with vascular reconstruction.',
-      },
-      {
-        id: 'doc-labs',
-        title: 'Preoperative Labs',
-        summary: 'Child-Pugh A profile with adequate liver reserve.',
-      },
-    ],
-  },
-]
 
 const LearningPage = () => {
   const navigate = useNavigate()
@@ -86,51 +37,117 @@ const LearningPage = () => {
   const caseStudies = useMemo<CaseStudy[]>(() => {
     const topic = activeSpecialty?.title ?? 'HPB'
 
-    if (!imagingEnabled) {
-      return [
-        {
-          id: 'case-lightweight',
-          label: `${topic} UX Focus`,
-          focus: 'Interface walkthrough',
-          documents: [
-            {
-              id: 'doc-ux-overview',
-              title: 'Scenario Overview',
-              summary:
-                'High-level patient context for UI review. Imaging loads are disabled to prioritise layout tweaks.',
-            },
-            {
-              id: 'doc-checklist',
-              title: 'Interaction Checklist',
-              summary: 'Track UI flows, ensure navigation clarity, and update notes inline.',
-            },
-          ],
-          structures: [],
-          metadata: {
-            notes:
-              'Lightweight mode active: imaging data omitted so you can iterate on UI without large asset downloads.',
+    const matchingAssets = learningAssets.filter((asset) => {
+      if (activeSpecialty) {
+        return asset.specialtyId === activeSpecialty.id
+      }
+      return asset.specialtyId === 'hpb-liver'
+    })
+
+    let assetsToUse = matchingAssets
+
+    if (assetsToUse.length === 0 && activeSpecialty) {
+      const placeholderAsset: LearningAsset = {
+        id: `placeholder-${activeSpecialty.id}`,
+        specialtyId: activeSpecialty.id,
+        title: `${activeSpecialty.title} Learning Overview`,
+        focus:
+          activeSpecialty.description ??
+          `Preview the upcoming ${activeSpecialty.title} learning pathway.`,
+        documents: [
+          {
+            id: `doc-${activeSpecialty.id}-highlights`,
+            title: `${activeSpecialty.title} Highlights`,
+            summary:
+              activeSpecialty.description ??
+              'Content coming soon. Capture cases and imaging as they are curated.',
           },
+          {
+            id: `doc-${activeSpecialty.id}-planning`,
+            title: 'Planning Notes',
+            summary:
+              'Outline the cases and imaging resources you plan to add for this specialty.',
+          },
+        ],
+        structures: [],
+        metadata: {
+          notes:
+            'Content coming soon. Use this space to map out your learning objectives and reference materials.',
         },
-      ]
+      }
+      assetsToUse = [placeholderAsset]
+    } else if (assetsToUse.length === 0) {
+      const placeholderAsset: LearningAsset = {
+        id: 'placeholder-general',
+        specialtyId: 'general',
+        title: 'HPB Orientation',
+        focus: 'Interface walkthrough',
+        documents: [
+          {
+            id: 'doc-general-overview',
+            title: 'Overview',
+            summary:
+              'Explore the LearnHPB interface while we finalise specialty-specific content.',
+          },
+          {
+            id: 'doc-general-checklist',
+            title: 'Iteration Checklist',
+            summary:
+              'Confirm navigation flows, assess documentation panels, and capture feedback for the team.',
+          },
+        ],
+        structures: [],
+        metadata: {
+          notes:
+            'Placeholder content. Populate learning assets via the data files when ready.',
+        },
+      }
+      assetsToUse = [placeholderAsset]
     }
 
-    return hpbCaseAssets
-      .filter((asset) => asset.id.startsWith('case'))
-      .map((asset, index) => ({
-        id: asset.id,
-        label: `${topic} Case ${index + 1}: ${asset.title}`,
-        focus: asset.focus,
-        volume: {
-          url: `${dataRoot}/${asset.volumePath}`,
-          format: 'vti',
-        },
-        metadata: asset.metadata,
-        documents: asset.documents,
-        structures: asset.structures.map(({ meshPath, ...structure }) => ({
-          ...structure,
-          meshUrl: `${dataRoot}/${meshPath}`,
-        })),
+    return assetsToUse.map((asset, index) => {
+      const isPlaceholder = asset.id.startsWith('placeholder-')
+      const label = isPlaceholder
+        ? `${topic} Learning Overview`
+        : `${topic} Case ${index + 1}: ${asset.title}`
+
+      const structures = (asset.structures ?? []).map(({ meshPath, ...structure }) => ({
+        ...structure,
+        meshUrl: meshPath ? `${dataRoot}/${meshPath}` : undefined,
       }))
+
+      const baseMetadata = asset.metadata ?? {}
+      const notes = !imagingEnabled
+        ? [
+            baseMetadata.notes,
+            'Lightweight mode active: imaging data omitted so you can iterate on UI without large asset downloads.',
+          ]
+            .filter(Boolean)
+            .join(' ')
+        : baseMetadata.notes
+
+      const metadata = {
+        ...baseMetadata,
+        ...(notes ? { notes } : {}),
+      }
+
+      return {
+        id: asset.id,
+        label,
+        focus: asset.focus,
+        volume:
+          imagingEnabled && asset.volumePath
+            ? {
+                url: `${dataRoot}/${asset.volumePath}`,
+                format: 'vti' as const,
+              }
+            : undefined,
+        metadata,
+        documents: asset.documents,
+        structures,
+        assessment: asset.assessment,
+      }
+    })
   }, [activeSpecialty, imagingEnabled])
 
   const [selectedCaseId, setSelectedCaseId] = useState(caseStudies[0]?.id)
@@ -234,6 +251,11 @@ const LearningPage = () => {
             }}
           />
         </section>
+
+        <AssessmentModule
+          caseId={selectedCase?.id}
+          assessment={selectedCase?.assessment}
+        />
       </section>
 
       <SettingsModal
