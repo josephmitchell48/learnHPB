@@ -18,12 +18,13 @@ const SpecialtySelectionPage = () => {
         <h2 className="panel-title">Select an HPB focus area</h2>
         <div className="card-grid two-columns">
           {specialties.map((specialty) => {
+            const isLiver = specialty.id === 'hpb-liver'
             return (
               <button
                 key={specialty.id}
-                className="card-button specialty-card"
+                className={`card-button specialty-card${isLiver ? '': ' role-card--disabled'}`}
                 type="button"
-                onClick={() =>
+                onClick={ isLiver ?  () =>
                   navigate(`/learning/${specialty.id}`, {
                     state: {
                       role: role ?? 'guest',
@@ -31,7 +32,8 @@ const SpecialtySelectionPage = () => {
                       provider,
                       specialty,
                     },
-                  })
+                  }) 
+                  : undefined
                 }
               >
                 <div className="card-accent" aria-hidden />
