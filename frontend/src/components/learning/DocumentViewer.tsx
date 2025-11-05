@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import type { CaseDocument } from '../../types/learning'
 
 type DocumentViewerProps = {
@@ -6,21 +7,99 @@ type DocumentViewerProps = {
   onSelectDocument: (documentId: string) => void
 }
 
-const placeholderDocument = `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent porttitor congue erat,
-non commodo magna porta quis. Sed porta volutpat elit, nec iaculis mauris blandit nec. Morbi vitae
-venenatis felis. Suspendisse potenti. Sed malesuada lorem id aliquam lacinia. Pellentesque sit amet
-felis a nisl feugiat tempus. Donec pulvinar volutpat nunc, sed gravida massa accumsan et. Fusce at
-libero eu augue aliquet hendrerit. Integer euismod, ligula non imperdiet semper, neque erat iaculis
-metus, ac aliquet risus nibh vitae augue. Nulla facilisi. Quisque dignissim consequat nisi, vitae
-tempor ante vulputate ac.`
-
 const DocumentViewer = ({
   documents,
   selectedDocumentId,
   onSelectDocument,
 }: DocumentViewerProps) => {
+  const [documentContent, setDocumentContent] = useState<string>('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
   const activeDocument =
     documents.find((doc) => doc.id === selectedDocumentId) ?? documents[0]
+
+  useEffect(() => {
+    if (!activeDocument) {
+      setDocumentContent('')
+      setIsLoading(false)
+      setError(null)
+      return
+    }
+
+    if (!activeDocument.contentPath) {
+      setDocumentContent(
+        activeDocument.content ??
+          activeDocument.summary ??
+          'Content coming soon.',
+      )
+      setIsLoading(false)
+      setError(null)
+      return
+    }
+
+    const controller = new AbortController()
+    const loadContent = async () => {
+      setIsLoading(true)
+      setError(null)
+      try {
+        const response = await fetch(
+          `${import.meta.env.BASE_URL}${activeDocument.contentPath}`,
+          {
+            signal: controller.signal,
+          },
+        )
+
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`)
+        }
+
+        const text = await response.text()
+        setDocumentContent(text)
+      } catch (err) {
+        if ((err as Error).name === 'AbortError') {
+          return
+        }
+
+        console.error('Failed to load document content', err)
+        setError('Unable to load this document right now.')
+        setDocumentContent(
+          activeDocument.summary ??
+            activeDocument.content ??
+            'Content coming soon.',
+        )
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    void loadContent()
+
+    return () => controller.abort()
+  }, [activeDocument])
+
+  const renderContent = () => {
+    if (!activeDocument) {
+      return <p>No documents available.</p>
+    }
+
+    if (isLoading) {
+      return <p>Loading document…</p>
+    }
+
+    if (error) {
+      return <p className="document-error">{error}</p>
+    }
+
+    if (!documentContent) {
+      return <p>Content coming soon.</p>
+    }
+
+    return documentContent
+      .split(/\r?\n\r?\n/)
+      .filter((paragraph) => paragraph.trim().length > 0)
+      .map((paragraph, index) => <p key={index}>{paragraph.trim()}</p>)
+  }
 
   return (
     <div className="case-body">
@@ -58,9 +137,7 @@ const DocumentViewer = ({
           </div>
         </div>
         <div className="viewer-content">
-          <p>{placeholderDocument}</p>
-          <p>{placeholderDocument}</p>
-          <p>{placeholderDocument}</p>
+          {renderContent()}
         </div>
       </div>
     </div>

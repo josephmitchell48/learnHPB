@@ -80,9 +80,14 @@ body.theme-dark .panel {
     inset 0 1px 0 rgba(248, 177, 149, 0.15);
 }
 
+body.theme-dark .role-card-text{
+  color: rgba(248, 177, 149, 0.78);
+
+}
+
 .panel-title {
   margin: 0;
-  font-size: 2rem;
+  font-size: 3rem;
   color: var(--color-deep-blue);
 }
 
@@ -221,11 +226,35 @@ body.theme-dark .primary-button.outline {
   box-shadow: 0 12px 26px rgba(108, 91, 123, 0.12);
 }
 
+.card-button:disabled,
+.card-button[aria-disabled='true'],
+.card-button.role-card--disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  box-shadow: none;
+  transform: none;
+}
+
+.card-button:disabled:hover,
+.card-button[aria-disabled='true']:hover,
+.card-button.role-card--disabled:hover {
+  transform: none;
+  border-color: rgba(53, 92, 125, 0.15);
+  box-shadow: none;
+}
+
 body.theme-dark .card-button {
   background: rgba(15, 23, 42, 0.78);
   border: 1px solid rgba(246, 114, 128, 0.28);
   box-shadow: 0 16px 36px rgba(15, 23, 42, 0.45);
   color: #fef9f6;
+}
+
+body.theme-dark .card-button:disabled,
+body.theme-dark .card-button[aria-disabled='true'],
+body.theme-dark .card-button.role-card--disabled {
+  border: 1px solid rgba(246, 114, 128, 0.2);
+  opacity: 0.55;
 }
 
 .card-button h3 {
