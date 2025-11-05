@@ -201,80 +201,84 @@ const DicomViewer = ({
 
       <div className="dicom-viewer__content">
         <div className="dicom-viewer__viewport">
-          <div
-            ref={volumeContainerRef}
-            className={clsx('dicom-viewer__stage', {
-              light: useLightTheme,
-              dark: !useLightTheme,
-              hidden: viewMode === '2d',
-            })}
-          >
-            {stagePanelMessage && (
-              <div
-                className={clsx('dicom-viewer__placeholder', {
-                  'dicom-viewer__placeholder--error': Boolean(errorMessage),
-                })}
-              >
-                {stagePanelMessage}
-              </div>
-            )}
-          </div>
-
-          <div
-            className={clsx('dicom-viewer__slice-panel', {
-              hidden: viewMode !== '2d',
-            })}
-          >
-            <div className="dicom-viewer__slice-tabs">
-              {sliceOrder.map((axis) => (
-                <button
-                  key={axis}
-                  type="button"
-                  className={clsx('dicom-viewer__slice-tab', {
-                    active: axis === activeSliceAxis,
+          <div className="dicom-viewer__viewport-shell">
+            <div
+              ref={volumeContainerRef}
+              className={clsx('dicom-viewer__stage', {
+                light: useLightTheme,
+                dark: !useLightTheme,
+                'is-active': viewMode === '3d',
+              })}
+              aria-hidden={viewMode !== '3d'}
+            >
+              {stagePanelMessage && (
+                <div
+                  className={clsx('dicom-viewer__placeholder', {
+                    'dicom-viewer__placeholder--error': Boolean(errorMessage),
                   })}
-                  onClick={() => setActiveSliceAxis(axis)}
                 >
-                  {sliceLabels[axis]}
-                </button>
-              ))}
+                  {stagePanelMessage}
+                </div>
+              )}
             </div>
 
-            {slicePanelMessage ? (
-              <div
-                className={clsx('dicom-viewer__placeholder', {
-                  'dicom-viewer__placeholder--error': Boolean(errorMessage),
-                })}
-              >
-                {slicePanelMessage}
+            <div
+              className={clsx('dicom-viewer__slice-panel', {
+                'is-active': viewMode === '2d',
+              })}
+              aria-hidden={viewMode !== '2d'}
+            >
+              <div className="dicom-viewer__slice-tabs">
+                {sliceOrder.map((axis) => (
+                  <button
+                    key={axis}
+                    type="button"
+                    className={clsx('dicom-viewer__slice-tab', {
+                      active: axis === activeSliceAxis,
+                    })}
+                    onClick={() => setActiveSliceAxis(axis)}
+                  >
+                    {sliceLabels[axis]}
+                  </button>
+                ))}
               </div>
-            ) : (
-              <>
-                <div className="dicom-viewer__slice-wrapper">
-                  <div ref={sliceMainRef} className="dicom-viewer__slice-canvas" />
+
+              {slicePanelMessage ? (
+                <div
+                  className={clsx('dicom-viewer__placeholder', {
+                    'dicom-viewer__placeholder--error': Boolean(errorMessage),
+                  })}
+                >
+                  {slicePanelMessage}
                 </div>
-                <div className="dicom-viewer__slice-sliderRow">
-                  <span>{sliceLabels[activeSliceAxis]} slice</span>
-                  <input
-                    className="dicom-viewer__slice-slider"
-                    type="range"
-                    min={currentSliceRange[0]}
-                    max={currentSliceRange[1]}
-                    value={currentSliceValue}
-                    onChange={(event) =>
-                      handleSliceChange(activeSliceAxis, Number(event.target.value))
-                    }
-                    disabled={sliceSliderDisabled}
-                  />
-                  <span className="dicom-viewer__slice-value">
-                    {currentSliceValue}
-                    {currentSliceRange[1] > currentSliceRange[0]
-                      ? ` / ${currentSliceRange[1]}`
-                      : ''}
-                  </span>
-                </div>
-              </>
-            )}
+              ) : (
+                <>
+                  <div className="dicom-viewer__slice-wrapper">
+                    <div ref={sliceMainRef} className="dicom-viewer__slice-canvas" />
+                  </div>
+                  <div className="dicom-viewer__slice-sliderRow">
+                    <span>{sliceLabels[activeSliceAxis]} slice</span>
+                    <input
+                      className="dicom-viewer__slice-slider"
+                      type="range"
+                      min={currentSliceRange[0]}
+                      max={currentSliceRange[1]}
+                      value={currentSliceValue}
+                      onChange={(event) =>
+                        handleSliceChange(activeSliceAxis, Number(event.target.value))
+                      }
+                      disabled={sliceSliderDisabled}
+                    />
+                    <span className="dicom-viewer__slice-value">
+                      {currentSliceValue}
+                      {currentSliceRange[1] > currentSliceRange[0]
+                        ? ` / ${currentSliceRange[1]}`
+                        : ''}
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>

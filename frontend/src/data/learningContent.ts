@@ -67,32 +67,26 @@ export const learningAssets: LearningAsset[] = [
       {
         id: 'doc-clinical-notes',
         title: 'Clinical Consultation Notes',
-        summary: 'Initial hepatology consult outlining symptoms, hepatitis B history, and staging plan.',
         contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Clinical_Notes.txt',
       },
       {
         id: 'doc-imaging',
         title: 'Imaging Report',
-        summary: 'Ultrasound, triphasic CT, and MRI findings confirming a solitary LI-RADS 5 lesion.',
         contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Imaging_Report.txt',
       },
       {
         id: 'doc-labs',
         title: 'Laboratory Results',
-        summary: 'LFT panel, AFP, and coagulation profile supporting Child–Pugh A status.',
         contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Lab_Results.txt',
       },
       {
         id: 'doc-treatment',
         title: 'Treatment Plan',
-        summary: 'Multidisciplinary plan for segment VIII hepatectomy with postoperative surveillance schedule.',
         contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Treatment_Plan.txt',
       },
     ],
     assessment: {
-      title: 'Operative Readiness Check',
-      intro:
-        'Confirm your understanding of key anatomical and clinical considerations before planning the resection.',
+      title: 'Evaluate Your Understanding',
       questions: [
         {
           id: 'hepatic-vein-course',
