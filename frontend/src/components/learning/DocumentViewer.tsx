@@ -118,7 +118,6 @@ const DocumentViewer = ({
                 onClick={() => onSelectDocument(doc.id)}
               >
                 <strong>{doc.title}</strong>
-                <span>{doc.summary}</span>
               </button>
             </li>
           ))}

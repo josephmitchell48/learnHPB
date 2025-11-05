@@ -214,10 +214,7 @@ const LearningPage = () => {
         <header className="case-header">
           <div>
             <h1>{selectedCase?.label ?? 'Case Study'}</h1>
-            <p className="case-focus">
-              Clinical focus:{' '}
-              <span>{selectedCase?.focus ?? 'Comprehensive review'}</span>
-            </p>
+            <h2>Clinical Work Up</h2>
           </div>
           <div className="case-meta">
             <span className="meta-chip">{activeSpecialty?.title}</span>
@@ -232,10 +229,9 @@ const LearningPage = () => {
         />
 
         <section className="dicom-section">
-          <h2>3D Exploration</h2>
+          <h2>Radiology</h2>
           <p className="dicom-section__subtitle">
-            {imagingEnabled
-              ? 'Interact with vascular and organ structures to reinforce spatial understanding.'
+            {imagingEnabled ? ''
               : 'Imaging is disabled in lightweight mode so you can focus on UI layout and flows.'}
           </p>
           <DicomViewer
