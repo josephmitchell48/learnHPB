@@ -3,7 +3,9 @@ import type { CaseAssessment } from '../types/learning'
 type LearningAssetDocument = {
   id: string
   title: string
-  summary: string
+  summary?: string
+  content?: string
+  contentPath?: string
 }
 
 type LearningAssetStructure = {
@@ -67,26 +69,36 @@ export const learningAssets: LearningAsset[] = [
       {
         id: 'doc-clinical-notes',
         title: 'Clinical Consultation Notes',
-        contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Clinical_Notes.txt',
+        summary:
+          '63-year-old with chronic hepatitis B cirrhosis evaluated for segment VII lesion; documents history, symptoms, and baseline liver function.',
+        contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Clinical_Notes.pdf',
       },
       {
         id: 'doc-imaging',
         title: 'Imaging Report',
-        contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Imaging_Report.txt',
+        summary:
+          'Triphasic CT describes a 4.2 cm arterially enhancing HCC in segment VII abutting the right hepatic vein without portal invasion.',
+        contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Imaging_Report.pdf',
       },
       {
         id: 'doc-labs',
         title: 'Laboratory Results',
-        contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Lab_Results.txt',
+        summary:
+          'Shows preserved bilirubin, INR 1.1, albumin 3.8, and platelets 112k consistent with Child-Pugh A reserve.',
+        contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Lab_Results.pdf',
       },
       {
         id: 'doc-treatment',
         title: 'Treatment Plan',
-        contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Treatment_Plan.txt',
+        summary:
+          'Outlines parenchymal-sparing resection with vascular control strategy plus adjuvant surveillance milestones.',
+        contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Treatment_Plan.pdf',
       },
     ],
     assessment: {
       title: 'Evaluate Your Understanding',
+      intro:
+        'Check how the imaging, labs, and operative planning align for this segment VII hepatectomy scenario.',
       questions: [
         {
           id: 'hepatic-vein-course',

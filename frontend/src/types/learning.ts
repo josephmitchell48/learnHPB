@@ -27,7 +27,7 @@ export type CaseAssessment = {
 export type CaseDocument = {
   id: string
   title: string
-  summary: string
+  summary?: string
   content?: string
   contentPath?: string
 }
