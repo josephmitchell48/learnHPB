@@ -16,6 +16,4 @@ applications:
       cache:
         paths:
           - node_modules/**/*
-      environment:
-        variables:
-          VITE_CASE_ASSET_BASE_URL: https://learnhpb-demo-data.s3.us-east-1.amazonaws.com/liverCases
+          
