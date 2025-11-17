@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import vtkXMLImageDataReader from '@kitware/vtk.js/IO/XML/XMLImageDataReader'
 import type vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData'
 import type { ViewerVolume } from './types'
+import { logCaseAssetDebug } from '../../config/assets'
 
 type VolumeExtent = [number, number, number, number, number, number]
 
@@ -31,6 +32,7 @@ export const useVtkVolume = (volume?: ViewerVolume): UseVtkVolumeResult => {
 
   const sourceDescriptor = useMemo(() => {
     if (!volume?.url) {
+      logCaseAssetDebug('No volume URL provided; clearing volume state')
       return null
     }
     return {
@@ -66,6 +68,7 @@ export const useVtkVolume = (volume?: ViewerVolume): UseVtkVolumeResult => {
         setErrorMessage(
           `Unsupported volume format "${sourceDescriptor.format}". Expected .vti`,
         )
+        logCaseAssetDebug('Unsupported volume format encountered:', sourceDescriptor)
         resetState()
         return
       }
@@ -74,6 +77,7 @@ export const useVtkVolume = (volume?: ViewerVolume): UseVtkVolumeResult => {
         setLoadingMessage('Loading volume data…')
         setErrorMessage(null)
 
+        logCaseAssetDebug('Fetching VTI volume:', sourceDescriptor.url)
         const response = await fetch(sourceDescriptor.url, { cache: 'force-cache' })
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}`)
@@ -93,9 +97,11 @@ export const useVtkVolume = (volume?: ViewerVolume): UseVtkVolumeResult => {
         markVersion(true, nextExtent)
 
         setLoadingMessage(null)
+        logCaseAssetDebug('Volume loaded successfully:', sourceDescriptor.url, 'extent', nextExtent)
       } catch (error) {
         if (!canceled) {
           console.error('vtk volume load failed', error)
+          logCaseAssetDebug('Volume fetch failed:', sourceDescriptor?.url, error)
           setLoadingMessage(null)
           setErrorMessage(
             'Unable to load the imaging volume. Verify the asset URL and format.',

@@ -5,6 +5,7 @@ import '@react-pdf-viewer/core/lib/styles/index.css'
 import '@react-pdf-viewer/default-layout/lib/styles/index.css'
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.js?url'
 import type { CaseDocument } from '../../types/learning'
+import { resolveCaseAssetUrl, logCaseAssetDebug } from '../../config/assets'
 
 type DocumentViewerProps = {
   documents: CaseDocument[]
@@ -24,9 +25,7 @@ const DocumentViewer = ({
 
   const activeDocument =
     documents.find((doc) => doc.id === selectedDocumentId) ?? documents[0]
-  const documentUrl = activeDocument?.contentPath
-    ? `${import.meta.env.BASE_URL}${activeDocument.contentPath}`
-    : null
+  const documentUrl = resolveCaseAssetUrl(activeDocument?.contentPath) ?? null
   const isPdfDocument = Boolean(
     documentUrl && documentUrl.toLowerCase().endsWith('.pdf'),
   )
@@ -42,6 +41,10 @@ const DocumentViewer = ({
     }
 
     if (!documentUrl) {
+      logCaseAssetDebug(
+        'Document has no external content path, falling back to inline summary:',
+        activeDocument?.id,
+      )
       setDocumentContent(
         activeDocument.content ??
           activeDocument.summary ??
@@ -52,6 +55,7 @@ const DocumentViewer = ({
     }
 
     if (isPdfDocument) {
+      logCaseAssetDebug('Rendering PDF document via viewer:', documentUrl)
       setDocumentContent('')
       setIsLoading(false)
       return
@@ -62,6 +66,7 @@ const DocumentViewer = ({
       setIsLoading(true)
       setError(null)
       try {
+        logCaseAssetDebug('Fetching document text:', documentUrl)
         const response = await fetch(documentUrl, {
           signal: controller.signal,
         })
@@ -71,6 +76,7 @@ const DocumentViewer = ({
         }
 
         const text = await response.text()
+        logCaseAssetDebug('Loaded document text content:', documentUrl, `(${text.length} bytes)`)
         setDocumentContent(text)
       } catch (err) {
         if ((err as Error).name === 'AbortError') {
@@ -78,6 +84,7 @@ const DocumentViewer = ({
         }
 
         console.error('Failed to load document content', err)
+        logCaseAssetDebug('Document fetch failed:', documentUrl, err)
         setError('Unable to load this document right now.')
         setDocumentContent(
           activeDocument.summary ??

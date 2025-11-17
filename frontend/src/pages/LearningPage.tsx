@@ -10,6 +10,7 @@ import AssessmentModule from '../components/learning/AssessmentModule'
 import SettingsModal from '../components/modals/SettingsModal'
 import type { CaseStudy } from '../types/learning'
 import { isLightweightMode } from '../config/environment'
+import { resolveCaseAssetUrl } from '../config/assets'
 import { useTheme } from '../context/ThemeContext'
 import './LearningPage.css'
 
@@ -17,8 +18,6 @@ type LearnerState = {
   role?: string
   specialty?: Specialty
 }
-
-const dataRoot = `${import.meta.env.BASE_URL}webOutput`
 
 const LearningPage = () => {
   const navigate = useNavigate()
@@ -113,7 +112,7 @@ const LearningPage = () => {
 
       const structures = (asset.structures ?? []).map(({ meshPath, ...structure }) => ({
         ...structure,
-        meshUrl: meshPath ? `${dataRoot}/${meshPath}` : undefined,
+        meshUrl: resolveCaseAssetUrl(meshPath),
       }))
 
       const baseMetadata = asset.metadata ?? {}
@@ -131,14 +130,16 @@ const LearningPage = () => {
         ...(notes ? { notes } : {}),
       }
 
+      const volumeUrl = resolveCaseAssetUrl(asset.volumePath)
+
       return {
         id: asset.id,
         label,
         focus: asset.focus,
         volume:
-          imagingEnabled && asset.volumePath
+          imagingEnabled && volumeUrl
             ? {
-                url: `${dataRoot}/${asset.volumePath}`,
+                url: volumeUrl,
                 format: 'vti' as const,
               }
             : undefined,
