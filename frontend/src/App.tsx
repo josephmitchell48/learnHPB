@@ -5,7 +5,11 @@ import RoleSelectionPage from './pages/RoleSelectionPage'
 import SpecialtySelectionPage from './pages/SpecialtySelectionPage'
 import SsoPage from './pages/SsoPage'
 
+console.log('CASE_ASSET_BASE_URL =', import.meta.env.VITE_CASE_ASSET_BASE_URL);
+
 const App = () => {
+  console.log('CASE_ASSET_BASE_URL =', import.meta.env.VITE_CASE_ASSET_BASE_URL);
+
   return (
     <div className="app-shell">
       <header className="app-header">
