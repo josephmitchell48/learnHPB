@@ -206,6 +206,39 @@ body.theme-dark .meta-chip {
   color: #fef9f6;
 }
 
+.case-alert {
+  padding: 0.75rem 1rem;
+  border-radius: 0.9rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+}
+
+.case-alert--info {
+  background: rgba(87, 117, 144, 0.12);
+  color: var(--color-deep-blue);
+  border-color: rgba(87, 117, 144, 0.25);
+}
+
+.case-alert--warning {
+  background: rgba(246, 114, 128, 0.12);
+  color: #a23e48;
+  border-color: rgba(246, 114, 128, 0.35);
+}
+
+body.theme-dark .case-alert--info {
+  background: rgba(87, 117, 144, 0.35);
+  color: #e4edf2;
+  border-color: rgba(87, 117, 144, 0.45);
+}
+
+body.theme-dark .case-alert--warning {
+  background: rgba(246, 114, 128, 0.35);
+  color: #fee9ec;
+  border-color: rgba(246, 114, 128, 0.45);
+}
+
 .case-body {
   display: flex;
   flex-direction: column;

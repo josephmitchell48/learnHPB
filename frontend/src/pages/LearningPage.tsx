@@ -10,7 +10,8 @@ import AssessmentModule from '../components/learning/AssessmentModule'
 import SettingsModal from '../components/modals/SettingsModal'
 import type { CaseStudy } from '../types/learning'
 import { isLightweightMode } from '../config/environment'
-import { resolveCaseAssetUrl } from '../config/assets'
+import { resolveCaseAssetUrl, supportsCaseAssetListing } from '../config/assets'
+import { useRemoteCaseStudies } from '../hooks/useRemoteCaseStudies'
 import { useTheme } from '../context/ThemeContext'
 import './LearningPage.css'
 
@@ -32,8 +33,15 @@ const LearningPage = () => {
   const activeSpecialty =
     specialty ?? specialties.find((item) => item.id === specialtyId)
   const imagingEnabled = !isLightweightMode
+  const isLiverSpecialty = !activeSpecialty || activeSpecialty.id === 'hpb-liver'
+  const remoteCasesEnabled = supportsCaseAssetListing && isLiverSpecialty
+  const {
+    caseStudies: remoteCaseStudies,
+    loading: remoteCasesLoading,
+    error: remoteCasesError,
+  } = useRemoteCaseStudies(remoteCasesEnabled)
 
-  const caseStudies = useMemo<CaseStudy[]>(() => {
+  const fallbackCaseStudies = useMemo<CaseStudy[]>(() => {
     const topic = activeSpecialty?.title ?? 'HPB'
 
     const matchingAssets = learningAssets.filter((asset) => {
@@ -151,7 +159,21 @@ const LearningPage = () => {
     })
   }, [activeSpecialty, imagingEnabled])
 
-  const [selectedCaseId, setSelectedCaseId] = useState(caseStudies[0]?.id)
+  const caseStudies = useMemo<CaseStudy[]>(() => {
+    if (remoteCasesEnabled && remoteCaseStudies.length > 0) {
+      return remoteCaseStudies
+    }
+    return fallbackCaseStudies
+  }, [fallbackCaseStudies, remoteCaseStudies, remoteCasesEnabled])
+
+  const showRemoteLoadingBanner =
+    remoteCasesEnabled && remoteCasesLoading && remoteCaseStudies.length === 0
+  const remoteErrorBanner =
+    remoteCasesEnabled && remoteCasesError && remoteCaseStudies.length === 0
+      ? remoteCasesError
+      : null
+
+  const [selectedCaseId, setSelectedCaseId] = useState<string | undefined>(caseStudies[0]?.id)
   const selectedCase =
     caseStudies.find((caseStudy) => caseStudy.id === selectedCaseId) ??
     caseStudies[0]
@@ -179,8 +201,17 @@ const LearningPage = () => {
   }, [selectedCase, selectedDocumentId])
 
   useEffect(() => {
-    if (!selectedCaseId && caseStudies[0]) {
-      setSelectedCaseId(caseStudies[0].id)
+    if (caseStudies.length === 0) {
+      setSelectedCaseId(undefined)
+      setSelectedDocumentId(null)
+      return
+    }
+
+    const exists = caseStudies.some((caseStudy) => caseStudy.id === selectedCaseId)
+    if (!exists) {
+      const fallbackCase = caseStudies[0]
+      setSelectedCaseId(fallbackCase.id)
+      setSelectedDocumentId(fallbackCase.documents[0]?.id ?? null)
     }
   }, [caseStudies, selectedCaseId])
 
@@ -212,6 +243,14 @@ const LearningPage = () => {
       />
 
       <section className="learning-main">
+        {showRemoteLoadingBanner && (
+          <div className="case-alert case-alert--info">Loading cases from S3…</div>
+        )}
+        {remoteErrorBanner && (
+          <div className="case-alert case-alert--warning">
+            Unable to load remote cases. Showing local sample instead. ({remoteErrorBanner})
+          </div>
+        )}
         <header className="case-header">
           <div>
             <h1>{selectedCase?.label ?? 'Case Study'}</h1>
