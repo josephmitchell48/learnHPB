@@ -27,6 +27,7 @@ class Settings(BaseSettings):
   log_retention_days: int = 30
 
   cors_origins: str = "http://localhost:5173"
+  cors_origin_regex: Optional[str] = None
 
   class Config:
     env_file = ".env"

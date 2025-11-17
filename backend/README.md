@@ -32,6 +32,14 @@ Environment variables (or `.env`) supported via `pydantic-settings`:
 - `DATABASE_URL` – SQLAlchemy URL for Postgres (defaults to local instance)
 - `AWS_REGION`, `S3_ASSET_BUCKET`, `S3_DOCUMENT_BUCKET` – used for presigned URL generation
 - `FEATURE_FLAG_LIGHTWEIGHT_MODE` – allow frontend to request lightweight dataset
+- `CORS_ORIGINS` – comma-separated list of exact origins that can call the API (defaults to `http://localhost:5173`)
+- `CORS_ORIGIN_REGEX` – optional regex used when you need to allow patterned domains such as Amplify branch URLs (e.g., `https://.*\.amplifyapp\.com`)
+
+## Frontend Hosting (Amplify)
+
+- `amplify.yml` at the repo root instructs AWS Amplify Hosting to install dependencies and run the Vite build inside `frontend/` and publish the `dist/` output.
+- When Amplify finishes the first deploy, copy the generated domain name (e.g., `https://main.abc123.amplifyapp.com`) into your backend `.env` via `CORS_ORIGINS` or set `CORS_ORIGIN_REGEX=https://.*\.amplifyapp\.com` to trust every branch build.
+- If you later move the backend behind a different domain, update the frontend environment variables (`VITE_*`) through Amplify console so API calls point at the right host.
 
 ## Terraform Deployment
 
