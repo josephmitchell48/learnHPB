@@ -3,10 +3,10 @@ frontend:
   phases:
     preBuild:
       commands:
-        - cd frontend && npm install
+        - cd frontend && npm ci
     build:
       commands:
-        - npm run build
+        - cd frontend && npm run build
   artifacts:
     baseDirectory: frontend/dist
     files:
@@ -14,3 +14,6 @@ frontend:
   cache:
     paths:
       - frontend/node_modules/**/*
+  environment:
+    variables:
+      VITE_CASE_ASSET_BASE_URL: https://learnhpb-demo-data.s3.us-east-1.amazonaws.com/liverCases

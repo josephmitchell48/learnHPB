@@ -71,3 +71,12 @@ export default defineConfig([
   },
 ])
 ```
+
+## Case Asset Hosting
+
+- Set the optional `VITE_CASE_ASSET_BASE_URL` environment variable to the root URL where your case folders live (for example, `https://learnhpb-assets.s3.amazonaws.com/webOutput`). When unset, the app serves assets from the bundled `public/webOutput` directory so local development continues to work offline.
+- Each learning case references volume, mesh, and document paths relative to that base. To publish a new case, upload a folder (e.g., `case_demo1`) that matches the structure under `frontend/public/webOutput/case_demo1`.
+- In Amplify Hosting, add `VITE_CASE_ASSET_BASE_URL` under App settings → Environment variables so production builds fetch directly from the S3 bucket.
+- A starter value that points at `https://learnhpb-demo-data.s3.us-east-1.amazonaws.com/liverCases` is included in `.env.example`. Copy it to `.env` (which stays local thanks to `.gitignore`) to use the shared bucket or update the URL to your own dataset.
+- Set `VITE_CASE_ASSET_DEBUG=true` if you want verbose console logs showing every resolved URL and fetch request. This flag is automatically enabled in development builds to simplify debugging failed S3 reads.
+- When `VITE_CASE_ASSET_BASE_URL` points at an S3 REST endpoint (e.g., `https://bucket.s3.us-east-1.amazonaws.com/liverCases`), the Learning view automatically lists every folder under that prefix, fetches its `segmentations/*.vtp`, `*.vti`, and `clinical_files/*.pdf` assets, and builds the patient list dynamically. Ensure your bucket policy and CORS settings allow anonymous `ListObjectsV2` and `GET` so the browser can enumerate and download the assets.

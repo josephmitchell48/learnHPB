@@ -10,6 +10,7 @@ import vtkXMLPolyDataReader from '@kitware/vtk.js/IO/XML/XMLPolyDataReader'
 import type vtkPolyData from '@kitware/vtk.js/Common/DataModel/PolyData'
 import type vtkImageData from '@kitware/vtk.js/Common/DataModel/ImageData'
 import type { ViewerStructure } from './types'
+import { logCaseAssetDebug } from '../../config/assets'
 
 type VolumePipeline = {
   generic: vtkGenericRenderWindow
@@ -199,10 +200,12 @@ const VolumeRenderer3D = forwardRef<VolumeRenderer3DHandle, VolumeRenderer3DProp
     const loadPolyData = (meshUrl: string) => {
       const existing = meshCache.current.get(meshUrl)
       if (existing) {
+        logCaseAssetDebug('Mesh cache hit:', meshUrl)
         return Promise.resolve(existing)
       }
       const pending = meshPromiseCache.current.get(meshUrl)
       if (pending) {
+        logCaseAssetDebug('Mesh fetch already in progress:', meshUrl)
         return pending
       }
       const promise = fetch(meshUrl, { cache: 'force-cache' })
@@ -218,12 +221,15 @@ const VolumeRenderer3D = forwardRef<VolumeRenderer3DHandle, VolumeRenderer3DProp
           const polyData = reader.getOutputData(0) as vtkPolyData
           meshCache.current.set(meshUrl, polyData)
           meshPromiseCache.current.delete(meshUrl)
+          logCaseAssetDebug('Mesh loaded:', meshUrl)
           return polyData
         })
         .catch((error) => {
           meshPromiseCache.current.delete(meshUrl)
+          logCaseAssetDebug('Mesh fetch failed:', meshUrl, error)
           throw error
         })
+      logCaseAssetDebug('Fetching mesh data:', meshUrl)
       meshPromiseCache.current.set(meshUrl, promise)
       return promise
     }

@@ -39,25 +39,25 @@ export const learningAssets: LearningAsset[] = [
     specialtyId: 'hpb-liver',
     title: 'Segment VII Hepatectomy Planning',
     focus: 'HCC near the right hepatic vein',
-    volumePath: 'case_d466b655/case_d466b655_volume.vti',
+    volumePath: 'case_demo1/case_d466b655_volume.vti',
     structures: [
       {
         id: 'structure-liver',
         name: 'Liver Parenchyma',
         color: '#f8b195',
-        meshPath: 'case_d466b655/segmentations/case_d466b655_liver.vtp',
+        meshPath: 'case_demo1/segmentations/case_d466b655_liver.vtp',
       },
       {
         id: 'structure-vessels',
         name: 'Hepatic Vessels',
         color: '#355c7d',
-        meshPath: 'case_d466b655/segmentations/case_d466b655_hepatic_vessels.vtp',
+        meshPath: 'case_demo1/segmentations/case_d466b655_hepatic_vessels.vtp',
       },
       {
         id: 'structure-lesions',
         name: 'Liver Tumors',
         color: '#6c5b7b',
-        meshPath: 'case_d466b655/segmentations/case_d466b655_liver_tumors.vtp',
+        meshPath: 'case_demo1/segmentations/case_d466b655_liver_tumors.vtp',
       },
     ],
     metadata: {
@@ -71,28 +71,28 @@ export const learningAssets: LearningAsset[] = [
         title: 'Clinical Consultation Notes',
         summary:
           '63-year-old with chronic hepatitis B cirrhosis evaluated for segment VII lesion; documents history, symptoms, and baseline liver function.',
-        contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Clinical_Notes.pdf',
+        contentPath: 'case_demo1/clinical_files/Clinical_Notes.pdf',
       },
       {
         id: 'doc-imaging',
         title: 'Imaging Report',
         summary:
           'Triphasic CT describes a 4.2 cm arterially enhancing HCC in segment VII abutting the right hepatic vein without portal invasion.',
-        contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Imaging_Report.pdf',
+        contentPath: 'case_demo1/clinical_files/Imaging_Report.pdf',
       },
       {
         id: 'doc-labs',
         title: 'Laboratory Results',
         summary:
           'Shows preserved bilirubin, INR 1.1, albumin 3.8, and platelets 112k consistent with Child-Pugh A reserve.',
-        contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Lab_Results.pdf',
+        contentPath: 'case_demo1/clinical_files/Lab_Results.pdf',
       },
       {
         id: 'doc-treatment',
         title: 'Treatment Plan',
         summary:
           'Outlines parenchymal-sparing resection with vascular control strategy plus adjuvant surveillance milestones.',
-        contentPath: 'webOutput/case_d466b655/HCC_Patient_Daniel_Huang/Treatment_Plan.pdf',
+        contentPath: 'case_demo1/clinical_files/Treatment_Plan.pdf',
       },
     ],
     assessment: {
