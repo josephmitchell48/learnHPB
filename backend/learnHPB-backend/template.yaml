@@ -1,0 +1,70 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: learnHPB backend Lambda that exposes liver cases via API Gateway.
+
+Parameters:
+  CasesBucketName:
+    Type: String
+    Description: S3 bucket that stores the liver case assets.
+  CasePrefix:
+    Type: String
+    Default: liverCases
+    Description: Prefix inside the bucket where per-case folders live.
+  CasesMetaKey:
+    Type: String
+    Default: meta/cases.json
+    Description: Key of the JSON document listing all cases.
+  IncludeSignedUrls:
+    Type: String
+    Default: false
+    AllowedValues: ['true', 'false']
+    Description: Whether to include presigned URLs for every case asset.
+  CaseSignedUrlTTL:
+    Type: Number
+    Default: 900
+    Description: Expiration in seconds for generated presigned URLs.
+
+Globals:
+  Function:
+    Runtime: python3.11
+    MemorySize: 512
+    Timeout: 10
+    Tracing: Active
+    Handler: app.handler
+    CodeUri: src
+
+Resources:
+  CasesServiceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Description: Serve case metadata derived from S3.
+      Environment:
+        Variables:
+          CASES_BUCKET: !Ref CasesBucketName
+          CASES_PREFIX: !Ref CasePrefix
+          CASES_META_KEY: !Ref CasesMetaKey
+          CASE_SIGNED_URLS: !Ref IncludeSignedUrls
+          CASE_SIGNED_URL_TTL: !Ref CaseSignedUrlTTL
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+              Resource: !Sub arn:aws:s3:::${CasesBucketName}/*
+      Events:
+        GetCases:
+          Type: Api
+          Properties:
+            Path: /cases
+            Method: get
+        GetCaseById:
+          Type: Api
+          Properties:
+            Path: /cases/{case_id}
+            Method: get
+
+Outputs:
+  ApiUrl:
+    Description: Invoke URL for the deployed API.
+    Value: !Sub https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod

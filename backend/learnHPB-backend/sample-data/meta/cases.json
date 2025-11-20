@@ -1,0 +1,13 @@
+{
+  "cases": [
+    {
+      "id": "case_demo1",
+      "title": "Left Hepatectomy Planning",
+      "summary": "Large cholangiocarcinoma encroaching on the left hepatic duct.",
+      "tags": ["liver", "demo"],
+      "difficulty": "intermediate",
+      "path": "liverCases/case_demo1",
+      "thumbnail": "liverCases/case_demo1/thumbnail.jpg"
+    }
+  ]
+}
