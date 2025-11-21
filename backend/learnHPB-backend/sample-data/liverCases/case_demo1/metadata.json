@@ -2,17 +2,16 @@
   "id": "case_demo1",
   "title": "Left Hepatectomy Planning",
   "summary": "Large cholangiocarcinoma encroaching on the left hepatic duct.",
-  "description": "Demo case that showcases how to stage the arterial inflow and remnant volume for complex resections.",
+  "description": "Demo case that showcases inflow and remnant planning.",
   "studyDate": "2023-08-11",
-  "tags": ["liver", "cholangiocarcinoma"],
+  "tags": ["liver", "demo"],
+  "difficulty": "intermediate",
   "assets": {
-    "volume": "volume.vti.gz",
-    "vessels": "vessels.vtp",
-    "metadata": "metadata.json"
+    "volume": "case_d466b655_volume.vti",
+    "hepatic_vessels": "segmentations/case_d466b655_hepatic_vessels.vtp",
+    "liver": "segmentations/case_d466b655_liver.vtp",
+    "tumors": "segmentations/case_d466b655_liver_tumors.vtp",
+    "clinical_files": "clinical_files/"
   },
-  "notes": {
-    "arterial": "Trifurcation with replaced right hepatic artery.",
-    "venous": "Short hepatic veins drained separately.",
-    "remnantVolumeMl": 430
-  }
+  "notes": {}
 }

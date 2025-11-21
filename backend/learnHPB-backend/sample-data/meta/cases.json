@@ -8,6 +8,24 @@
       "difficulty": "intermediate",
       "path": "liverCases/case_demo1",
       "thumbnail": "liverCases/case_demo1/thumbnail.jpg"
+    },
+    {
+      "id": "case_demo2",
+      "title": "Left Hepatectomy Planning",
+      "summary": "Large cholangiocarcinoma encroaching on the left hepatic duct.",
+      "tags": ["liver", "demo"],
+      "difficulty": "intermediate",
+      "path": "liverCases/case_demo2",
+      "thumbnail": "liverCases/case_demo2/thumbnail.jpg"
+    },
+    {
+      "id": "case_demo3",
+      "title": "Left Hepatectomy Planning",
+      "summary": "Large cholangiocarcinoma encroaching on the left hepatic duct.",
+      "tags": ["liver", "demo"],
+      "difficulty": "intermediate",
+      "path": "liverCases/case_demo3",
+      "thumbnail": "liverCases/case_demo3/thumbnail.jpg"
     }
   ]
 }

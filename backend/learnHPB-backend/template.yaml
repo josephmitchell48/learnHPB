@@ -16,7 +16,7 @@ Parameters:
     Description: Key of the JSON document listing all cases.
   IncludeSignedUrls:
     Type: String
-    Default: false
+    Default: "false"
     AllowedValues: ['true', 'false']
     Description: Whether to include presigned URLs for every case asset.
   CaseSignedUrlTTL:
@@ -29,7 +29,7 @@ Globals:
     Runtime: python3.11
     MemorySize: 512
     Timeout: 10
-    Tracing: Active
+    Tracing: PassThrough
     Handler: app.handler
     CodeUri: src
 
