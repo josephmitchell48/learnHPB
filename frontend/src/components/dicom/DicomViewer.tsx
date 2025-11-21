@@ -65,6 +65,7 @@ const DicomViewer = ({
   const sliceMainRef = useRef<HTMLDivElement | null>(null)
   const volumeRendererRef = useRef<VolumeRenderer3DHandle | null>(null)
 
+  const [volumeRequested, setVolumeRequested] = useState(false)
   const {
     imageDataRef,
     extent,
@@ -72,13 +73,13 @@ const DicomViewer = ({
     errorMessage,
     hasVolume,
     version,
-  } = useVtkVolume(imagingEnabled ? volume : undefined)
+  } = useVtkVolume(imagingEnabled && volumeRequested ? volume : undefined)
 
   const [visibleStructures, setVisibleStructures] = useState<Record<string, boolean>>(() =>
     defaultStructureVisibility(structures),
   )
   const [viewMode, setViewMode] = useState<'3d' | '2d'>('3d')
-  const [showVolume, setShowVolume] = useState(true)
+  const [showVolume, setShowVolume] = useState(false)
   const [useLightTheme, setUseLightTheme] = useState(false)
   const [activeSliceAxis, setActiveSliceAxis] = useState<SliceAxis>('k')
   const [sliceRange, setSliceRange] = useState<SliceRange>({
@@ -91,6 +92,7 @@ const DicomViewer = ({
     j: 0,
     k: 0,
   })
+  const [volumeError, setVolumeError] = useState<string | null>(null)
 
   useEffect(() => {
     setVisibleStructures((previous) => {
@@ -136,6 +138,27 @@ const DicomViewer = ({
     }))
   }
 
+  useEffect(() => {
+    setVolumeRequested(false)
+    setShowVolume(false)
+    setVolumeError(null)
+  }, [caseLabel, volume?.url])
+
+  useEffect(() => {
+    if (!imagingEnabled) {
+      setVolumeRequested(false)
+      setShowVolume(false)
+    }
+  }, [imagingEnabled])
+
+  useEffect(() => {
+    if (errorMessage) {
+      setVolumeError(errorMessage)
+      setVolumeRequested(false)
+      setShowVolume(false)
+    }
+  }, [errorMessage])
+
   const hasSliceExtent = useMemo(
     () =>
       sliceRange.i[0] !== sliceRange.i[1] ||
@@ -161,20 +184,48 @@ const DicomViewer = ({
     }
   }, [imagingEnabled])
 
+  const volumePromptMessage = !volume?.url
+    ? 'This case does not include a volumetric dataset.'
+    : 'Load the volumetric CT only when you need it. Select "Show Volume" to stream it from S3.'
+
   const slicePanelMessage =
     imagingDisabledMessage ??
-    loadingMessage ??
-    errorMessage ??
-    (!volume?.url ? 'Provide a volume URL and format to visualise data.' : null)
+    (volumeRequested
+      ? loadingMessage ?? (!hasVolume ? 'Preparing viewer...' : null)
+      : volumePromptMessage)
 
   const stagePanelMessage =
     imagingDisabledMessage ??
-    (!volume?.url ? 'Provide a volume URL and format to visualise data.' : null) ??
-    (volume?.url && !hasVolume && !loadingMessage && !errorMessage
-      ? 'Preparing viewer…'
-      : null) ??
-    loadingMessage ??
-    errorMessage
+    (volumeRequested
+      ? loadingMessage ?? (!hasVolume ? 'Preparing viewer...' : null)
+      : null)
+
+  const volumeButtonLabel = !volume?.url
+    ? 'Volume Unavailable'
+    : !volumeRequested
+      ? 'Show Volume'
+      : showVolume
+        ? 'Hide Volume'
+        : 'Show Volume'
+  const volumeButtonDisabled =
+    !imagingEnabled || !volume?.url || (volumeRequested && !hasVolume)
+  const volumeLoading = Boolean(volumeRequested && loadingMessage)
+
+  const handleVolumeButtonClick = () => {
+    if (!volume?.url || !imagingEnabled) {
+      return
+    }
+    if (!volumeRequested) {
+      setVolumeError(null)
+      setVolumeRequested(true)
+      setShowVolume(true)
+      return
+    }
+    setShowVolume((prev) => !prev)
+  }
+
+  const showVolumePrompt =
+    Boolean(volume?.url) && imagingEnabled && !volumeRequested && !volumeError
 
   const activeMainOrientation = mainSliceOrientation[activeSliceAxis]
 
@@ -199,6 +250,18 @@ const DicomViewer = ({
         </div>
       </header>
 
+      {volumeError && (
+        <div className="dicom-viewer__alert" role="alert">
+          <strong>Volume failed to load.</strong> {volumeError} Click "Show Volume" to try again.
+        </div>
+      )}
+      {showVolumePrompt && (
+        <div className="dicom-viewer__alert dicom-viewer__alert--info">
+          <strong>Volume on demand.</strong> Select "Show Volume" to load the CT dataset when
+          you need it. Segmentations are already available.
+        </div>
+      )}
+
       <div className="dicom-viewer__content">
         <div className="dicom-viewer__viewport">
           <div className="dicom-viewer__viewport-shell">
@@ -212,12 +275,9 @@ const DicomViewer = ({
               aria-hidden={viewMode !== '3d'}
             >
               {stagePanelMessage && (
-                <div
-                  className={clsx('dicom-viewer__placeholder', {
-                    'dicom-viewer__placeholder--error': Boolean(errorMessage),
-                  })}
-                >
-                  {stagePanelMessage}
+                <div className="dicom-viewer__placeholder">
+                  {volumeLoading && <span className="dicom-viewer__spinner" aria-hidden="true" />}
+                  <span>{stagePanelMessage}</span>
                 </div>
               )}
             </div>
@@ -244,13 +304,7 @@ const DicomViewer = ({
               </div>
 
               {slicePanelMessage ? (
-                <div
-                  className={clsx('dicom-viewer__placeholder', {
-                    'dicom-viewer__placeholder--error': Boolean(errorMessage),
-                  })}
-                >
-                  {slicePanelMessage}
-                </div>
+                <div className="dicom-viewer__placeholder">{slicePanelMessage}</div>
               ) : (
                 <>
                   <div className="dicom-viewer__slice-wrapper">
@@ -306,10 +360,10 @@ const DicomViewer = ({
             <button
               type="button"
               className="dicom-viewer__secondary"
-              onClick={() => setShowVolume((prev) => !prev)}
-              disabled={!imagingEnabled || !hasVolume}
+              onClick={handleVolumeButtonClick}
+              disabled={volumeButtonDisabled}
             >
-              {showVolume ? 'Hide Volume' : 'Show Volume'}
+              {volumeLoading ? 'Loading Volume...' : volumeButtonLabel}
             </button>
             <button
               type="button"

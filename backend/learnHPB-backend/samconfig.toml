@@ -1,0 +1,15 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "learnHPB-backend"
+resolve_s3 = true
+s3_prefix = "learnHPB-backend"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+disable_rollback = true
+parameter_overrides = "CasesBucketName=\"learnhpb-demo-data\" CasePrefix=\"liverCases\" CasesMetaKey=\"meta/cases.json\" IncludeSignedUrls=\"false\" CaseSignedUrlTTL=\"900\""
+image_repositories = []
+
+[default.global.parameters]
+region = "us-east-1"

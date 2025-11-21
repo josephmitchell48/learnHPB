@@ -187,6 +187,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
+  gap: 0.75rem;
   padding: 1.5rem;
   text-align: center;
   font-size: 0.95rem;
@@ -194,9 +196,42 @@
   background: rgba(255, 255, 255, 0.72);
 }
 
-.dicom-viewer__placeholder--error {
+.dicom-viewer__spinner {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  border: 3px solid rgba(17, 24, 39, 0.15);
+  border-top-color: var(--color-coral);
+  animation: dicom-viewer-spin 0.85s linear infinite;
+}
+
+@keyframes dicom-viewer-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.dicom-viewer__alert {
+  padding: 0.85rem 1.1rem;
+  border-radius: 0.9rem;
+  background: rgba(248, 177, 149, 0.18);
+  border: 1px solid rgba(246, 114, 128, 0.35);
+  color: var(--color-deep-blue);
+  font-size: 0.95rem;
+}
+
+.dicom-viewer__alert strong {
   color: #b91c1c;
-  background: rgba(248, 177, 149, 0.4);
+  margin-right: 0.35rem;
+}
+
+.dicom-viewer__alert--info {
+  background: rgba(53, 92, 125, 0.08);
+  border-color: rgba(53, 92, 125, 0.25);
+}
+
+.dicom-viewer__alert--info strong {
+  color: var(--color-deep-blue);
 }
 
 .dicom-viewer__viewport {

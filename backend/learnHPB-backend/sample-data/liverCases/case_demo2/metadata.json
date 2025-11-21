@@ -1,0 +1,17 @@
+{
+  "id": "case_demo2",
+  "title": "Left Hepatectomy Planning",
+  "summary": "Large cholangiocarcinoma encroaching on the left hepatic duct.",
+  "description": "Demo case that showcases inflow and remnant planning.",
+  "studyDate": "2023-08-11",
+  "tags": ["liver", "demo"],
+  "difficulty": "intermediate",
+  "assets": {
+    "volume": "case_2_volume.vti",
+    "hepatic_vessels": "segmentations/case_2_hepatic_vessels.vtp",
+    "liver": "segmentations/case_2_liver.vtp",
+    "tumors": "segmentations/case_2_liver_tumors.vtp",
+    "clinical_files": "clinical_files/"
+  },
+  "notes": {}
+}
