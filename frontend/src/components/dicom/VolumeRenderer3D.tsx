@@ -174,7 +174,6 @@ const VolumeRenderer3D = forwardRef<VolumeRenderer3DHandle, VolumeRenderer3DProp
       if (!data) {
         pipeline.volume.setVisibility(false)
         pipeline.renderWindow.render()
-        cleanupStructures()
         return
       }
       pipeline.mapper.setInputData(data)
@@ -236,8 +235,7 @@ const VolumeRenderer3D = forwardRef<VolumeRenderer3DHandle, VolumeRenderer3DProp
 
     useEffect(() => {
       const pipeline = volumePipelineRef.current
-      const data = imageDataRef.current
-      if (!pipeline || !data) {
+      if (!pipeline) {
         cleanupStructures()
         return
       }
@@ -291,6 +289,9 @@ const VolumeRenderer3D = forwardRef<VolumeRenderer3DHandle, VolumeRenderer3DProp
 
       Promise.all(tasks).then(() => {
         if (!canceled) {
+          if (!imageDataRef.current && structures.length > 0) {
+            renderer.resetCamera()
+          }
           renderWindow.render()
         }
       })
