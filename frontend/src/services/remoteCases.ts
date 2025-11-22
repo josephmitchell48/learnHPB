@@ -292,6 +292,7 @@ const buildCaseStudy = async (caseKey: string): Promise<CaseStudy | null> => {
       (file) =>
         file.startsWith('segmentations/') && file.toLowerCase().endsWith('.vtp'),
     )
+    logCaseAssetDebug('Case', caseKey, 'segmentations found:', meshFiles)
     const volumeCandidates = objects.filter((file) => file.toLowerCase().endsWith('.vti'))
 
     const caseId = manifest?.case_id ?? caseKey
@@ -300,6 +301,16 @@ const buildCaseStudy = async (caseKey: string): Promise<CaseStudy | null> => {
     const documents =
       docFiles.length > 0 ? buildDocuments(caseKey, docFiles, manifest) : createPlaceholderDocument(caseKey)
     const structures = buildStructures(caseKey, meshFiles, manifest)
+    logCaseAssetDebug(
+      'Case',
+      caseKey,
+      'structures built:',
+      structures.map((structure) => ({
+        id: structure.id,
+        meshUrl: structure.meshUrl,
+        color: structure.color,
+      })),
+    )
     const volumePath = chooseVolumePath(caseKey, manifest, volumeCandidates)
 
     const metadata = {
