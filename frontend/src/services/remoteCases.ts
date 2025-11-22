@@ -124,21 +124,25 @@ type RemoteCaseManifest = {
 }
 
 const fetchCaseManifest = async (caseKey: string): Promise<RemoteCaseManifest | null> => {
-  const manifestPath = joinCasePath(caseKey, 'manifest.json')
-  const manifestUrl = resolveCaseAssetUrl(manifestPath)
-  if (!manifestUrl) {
-    return null
-  }
-  try {
-    const response = await fetch(manifestUrl, { cache: 'no-cache' })
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
+  const candidateFiles = ['manifest.json', 'metadata.json']
+  for (const filename of candidateFiles) {
+    const manifestPath = joinCasePath(caseKey, filename)
+    const manifestUrl = resolveCaseAssetUrl(manifestPath)
+    if (!manifestUrl) {
+      continue
     }
-    return (await response.json()) as RemoteCaseManifest
-  } catch (error) {
-    logCaseAssetDebug('Manifest fetch failed for', caseKey, error)
-    return null
+    try {
+      const response = await fetch(manifestUrl, { cache: 'no-cache' })
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      logCaseAssetDebug('Loaded manifest for', caseKey, 'from', filename)
+      return (await response.json()) as RemoteCaseManifest
+    } catch (error) {
+      logCaseAssetDebug('Manifest fetch failed for', caseKey, filename, error)
+    }
   }
+  return null
 }
 
 const chooseVolumePath = (
