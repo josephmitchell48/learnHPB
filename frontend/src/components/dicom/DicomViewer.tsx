@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import '@kitware/vtk.js/Rendering/Profiles/Geometry'
 import '@kitware/vtk.js/Rendering/Profiles/Volume'
@@ -36,6 +36,7 @@ const mainSliceOrientation: Partial<
 > = {
   j: { viewUp: [0, 0, 1], direction: [0, -1, 0] },
   i: { viewUp: [0, 0, 1], direction: [1, 0, 0] },
+  k: { viewUp: [0, -1, 0], direction: [0, 0, -1] },
 }
 
 const defaultStructureVisibility = (structures: ViewerStructure[]) =>
@@ -66,6 +67,7 @@ const DicomViewer = ({
   const volumeRendererRef = useRef<VolumeRenderer3DHandle | null>(null)
 
   const [volumeRequested, setVolumeRequested] = useState(false)
+  const [sliceViewerKey, setSliceViewerKey] = useState(0)
   const {
     imageDataRef,
     extent,
@@ -79,7 +81,6 @@ const DicomViewer = ({
     defaultStructureVisibility(structures),
   )
   const [viewMode, setViewMode] = useState<'3d' | '2d'>('3d')
-  const [showVolume, setShowVolume] = useState(false)
   const [useLightTheme, setUseLightTheme] = useState(false)
   const [activeSliceAxis, setActiveSliceAxis] = useState<SliceAxis>('k')
   const [sliceRange, setSliceRange] = useState<SliceRange>({
@@ -140,14 +141,13 @@ const DicomViewer = ({
 
   useEffect(() => {
     setVolumeRequested(false)
-    setShowVolume(false)
     setVolumeError(null)
+    setSliceViewerKey(0)
   }, [caseLabel, volume?.url])
 
   useEffect(() => {
     if (!imagingEnabled) {
       setVolumeRequested(false)
-      setShowVolume(false)
     }
   }, [imagingEnabled])
 
@@ -155,17 +155,14 @@ const DicomViewer = ({
     if (errorMessage) {
       setVolumeError(errorMessage)
       setVolumeRequested(false)
-      setShowVolume(false)
     }
   }, [errorMessage])
 
-  const hasSliceExtent = useMemo(
-    () =>
-      sliceRange.i[0] !== sliceRange.i[1] ||
-      sliceRange.j[0] !== sliceRange.j[1] ||
-      sliceRange.k[0] !== sliceRange.k[1],
-    [sliceRange],
-  )
+  useEffect(() => {
+    if (viewMode === '2d' && volumeRequested && hasVolume) {
+      setSliceViewerKey((prev) => prev + 1)
+    }
+  }, [viewMode, volumeRequested, hasVolume])
 
   const ambientLabel = useLightTheme ? 'Use Dark Theme' : 'Use Light Theme'
   const viewToggleLabel = viewMode === '3d' ? 'Switch to 2D View' : 'Switch to 3D View'
@@ -184,48 +181,43 @@ const DicomViewer = ({
     }
   }, [imagingEnabled])
 
-  const volumePromptMessage = !volume?.url
-    ? 'This case does not include a volumetric dataset.'
-    : 'Load the volumetric CT only when you need it. Select "Show Volume" to stream it from S3.'
-
   const slicePanelMessage =
     imagingDisabledMessage ??
-    (volumeRequested
-      ? loadingMessage ?? (!hasVolume ? 'Preparing viewer...' : null)
-      : volumePromptMessage)
+    (volume?.url
+      ? volumeRequested
+        ? loadingMessage ?? (!hasVolume ? 'Preparing viewer...' : null)
+        : null
+      : 'This case does not include a volumetric dataset.')
 
-  const stagePanelMessage =
-    imagingDisabledMessage ??
-    (volumeRequested
-      ? loadingMessage ?? (!hasVolume ? 'Preparing viewer...' : null)
-      : null)
+  const stagePanelMessage = imagingDisabledMessage ?? null
 
-  const volumeButtonLabel = !volume?.url
-    ? 'Volume Unavailable'
-    : !volumeRequested
-      ? 'Show Volume'
-      : showVolume
-        ? 'Hide Volume'
-        : 'Show Volume'
-  const volumeButtonDisabled =
-    !imagingEnabled || !volume?.url || (volumeRequested && !hasVolume)
   const volumeLoading = Boolean(volumeRequested && loadingMessage)
 
-  const handleVolumeButtonClick = () => {
+  const requestVolumeIfNeeded = () => {
     if (!volume?.url || !imagingEnabled) {
-      return
+      return false
     }
     if (!volumeRequested) {
       setVolumeError(null)
       setVolumeRequested(true)
-      setShowVolume(true)
-      return
+      return true
     }
-    setShowVolume((prev) => !prev)
+    return false
   }
 
-  const showVolumePrompt =
-    Boolean(volume?.url) && imagingEnabled && !volumeRequested && !volumeError
+  const handleToggleViewMode = () => {
+    if (!volume?.url || !imagingEnabled) {
+      return
+    }
+    if (viewMode === '3d') {
+      requestVolumeIfNeeded()
+      setViewMode('2d')
+    } else {
+      setViewMode('3d')
+    }
+  }
+
+  const viewToggleDisabled = !imagingEnabled || !volume?.url
 
   const activeMainOrientation = mainSliceOrientation[activeSliceAxis]
 
@@ -252,16 +244,9 @@ const DicomViewer = ({
 
       {volumeError && (
         <div className="dicom-viewer__alert" role="alert">
-          <strong>Volume failed to load.</strong> {volumeError} Click "Show Volume" to try again.
+          <strong>Volume failed to load.</strong> {volumeError} Switch back to 2D view to retry.
         </div>
       )}
-      {showVolumePrompt && (
-        <div className="dicom-viewer__alert dicom-viewer__alert--info">
-          <strong>Volume on demand.</strong> Select "Show Volume" to load the CT dataset when
-          you need it. Segmentations are already available.
-        </div>
-      )}
-
       <div className="dicom-viewer__content">
         <div className="dicom-viewer__viewport">
           <div className="dicom-viewer__viewport-shell">
@@ -276,7 +261,6 @@ const DicomViewer = ({
             >
               {stagePanelMessage && (
                 <div className="dicom-viewer__placeholder">
-                  {volumeLoading && <span className="dicom-viewer__spinner" aria-hidden="true" />}
                   <span>{stagePanelMessage}</span>
                 </div>
               )}
@@ -304,7 +288,12 @@ const DicomViewer = ({
               </div>
 
               {slicePanelMessage ? (
-                <div className="dicom-viewer__placeholder">{slicePanelMessage}</div>
+                <div className="dicom-viewer__placeholder">
+                  {volumeLoading && viewMode === '2d' && (
+                    <span className="dicom-viewer__spinner" aria-hidden="true" />
+                  )}
+                  <span>{slicePanelMessage}</span>
+                </div>
               ) : (
                 <>
                   <div className="dicom-viewer__slice-wrapper">
@@ -352,18 +341,10 @@ const DicomViewer = ({
             <button
               type="button"
               className="dicom-viewer__secondary"
-              onClick={() => setViewMode((prev) => (prev === '3d' ? '2d' : '3d'))}
-              disabled={!imagingEnabled || !hasVolume || !hasSliceExtent}
+              onClick={handleToggleViewMode}
+              disabled={viewToggleDisabled}
             >
               {viewToggleLabel}
-            </button>
-            <button
-              type="button"
-              className="dicom-viewer__secondary"
-              onClick={handleVolumeButtonClick}
-              disabled={volumeButtonDisabled}
-            >
-              {volumeLoading ? 'Loading Volume...' : volumeButtonLabel}
             </button>
             <button
               type="button"
@@ -417,12 +398,13 @@ const DicomViewer = ({
           version={version}
           structures={structures}
           visibleStructures={visibleStructures}
-          showVolume={showVolume}
+          showVolume={false}
           useLightTheme={useLightTheme}
         />
       )}
       {imagingEnabled && viewMode === '2d' && (
         <SliceViewer2D
+          key={sliceViewerKey}
           containerRef={sliceMainRef}
           imageDataRef={imageDataRef}
           axis={activeSliceAxis}
