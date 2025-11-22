@@ -266,6 +266,7 @@ const VolumeRenderer3D = forwardRef<VolumeRenderer3DHandle, VolumeRenderer3DProp
           let actor = actors[structure.id]
           if (!actor) {
             const mapper = vtkMapper.newInstance()
+            mapper.setScalarVisibility(false)
             mapper.setInputData(polyData)
             actor = vtkActor.newInstance()
             actor.setMapper(mapper)
@@ -274,6 +275,7 @@ const VolumeRenderer3D = forwardRef<VolumeRenderer3DHandle, VolumeRenderer3DProp
           } else {
             const mapper = actor.getMapper()
             if (mapper) {
+              mapper.setScalarVisibility(false)
               mapper.setInputData(polyData)
             }
           }
